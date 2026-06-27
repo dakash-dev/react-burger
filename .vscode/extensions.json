@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode", // Рекомендуем поставить Prettier
+    "dbaeumer.vscode-eslint" // Рекомендуем поставить ESLint
+  ]
+}
