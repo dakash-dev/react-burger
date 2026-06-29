@@ -30,7 +30,7 @@ export const BurgerConstructor = ({ ingredients }) => {
               extraClass="ml-8"
             />
             {/*  Список инградиентов со скроллом*/}
-            <ul className={`${styles.ingredients_set}`}>
+            <ul className={`${styles.ingredients_set} custom-scroll`}>
               {ingredientsWithoutBun.map((base) => (
                 <li key={base._id} className={styles.ingredients_base}>
                   <DragIcon type="primary" />
