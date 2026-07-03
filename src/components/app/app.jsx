@@ -20,11 +20,11 @@ export const App = () => {
   // Получение данных с сервера.
   const getIngredients = async () => {
     try {
-      const responce = await fetch(`${BASE_URL}/ingredients`);
-      if (!responce.ok) {
+      const response = await fetch(`${BASE_URL}/ingredients`);
+      if (!response.ok) {
         throw new Error('Invalid request');
       }
-      const fetchData = await responce.json();
+      const fetchData = await response.json();
       setIngredientsData(fetchData.data);
     } catch (error) {
       setHasError(error.message);
@@ -37,13 +37,20 @@ export const App = () => {
     getIngredients();
   }, []);
 
+  // 1. Если данные еще загружаются — показываем прелоадер и выходим
   if (isLoading) {
-    // return <div>Загрузка космических ингредиентов...</div>;
     return <Preloader />;
   }
+
+  // 2. Если загрузка завершилась, но произошла ошибка — показываем текст ошибки и выходим
   if (hasError) {
-    return <div>Ошибка загрузки</div>;
+    return (
+      <div className={styles.errorContainer}>
+        <div className="text text_type_main-medium">Ошибка загрузки: {hasError}</div>
+      </div>
+    );
   }
+  // 3. Если данные загрузились - показывает основной интерфейс.
 
   return (
     <div className={styles.app}>
@@ -52,8 +59,6 @@ export const App = () => {
         Соберите бургер
       </h1>
       <main className={`${styles.main} pl-5 pr-5`}>
-        {/* <BurgerIngredients ingredients={ingredients} /> */}
-        {/* <BurgerConstructor ingredients={ingredients} /> */}
         <BurgerIngredients ingredients={ingredientsData} />
         <BurgerConstructor ingredients={ingredientsData} />
       </main>
