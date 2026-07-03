@@ -1,0 +1,31 @@
+.preloader {
+  position: fixed; /* Фиксируем относительно экрана */
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw; /* Вся ширина экрана */
+  height: 100vh; /* Вся высота экрана */
+}
+
+.preloader_circle {
+  display: block;
+  width: 74px;
+  height: 74px;
+  border: 2px solid; /* Утолщенная линия для красивого свечения */
+  border-color: #d1d2d6 #9fa0a5 #626368 #1a1b22;
+  border-radius: 50%;
+
+  /* Неоновое свечение в стиле Stellar Burgers */
+  box-shadow:
+    0 0 15px rgb(76 76 255 / 40%),
+    inset 0 0 15px rgb(76 76 255 / 20%);
+  animation: spin 0.75s infinite linear;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
