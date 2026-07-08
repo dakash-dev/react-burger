@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import Preloader from '@/components/preloader/preloader';
-import { BASE_URL } from '@/utils/constants';
+import { getIngredientsRequest } from '@/utils/burger-api';
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
@@ -20,12 +20,8 @@ export const App = () => {
   // Получение данных с сервера.
   const getIngredients = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/ingredients`);
-      if (!response.ok) {
-        throw new Error('Invalid request');
-      }
-      const fetchData = await response.json();
-      setIngredientsData(fetchData.data);
+      const response = await getIngredientsRequest();
+      setIngredientsData(response.data);
     } catch (error) {
       setHasError(error.message);
     } finally {
