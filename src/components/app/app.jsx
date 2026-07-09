@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
+import IngredientDetails from '@/components/ingredient-details/ingredient-details';
+import Modal from '@/components/modal/modal';
+import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
 import { getIngredientsRequest } from '@/utils/burger-api';
 import { AppHeader } from '@components/app-header/app-header';
@@ -15,7 +18,27 @@ export const App = () => {
   // Состояние загрузки.
   const [isLoading, setIsLoading] = useState(true);
   // Вероятные ошибки.
-  const [hasError, setHasError] = useState(null);
+  const [hasError, setHasError] = useState(false);
+  // Состояние для открытого ингредиента
+  const [selectedIngredient, setSelectedIngredinet] = useState(null);
+  // Состояние для открытия модалки заказа
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
+  const handleIngredientClick = useCallback((ingredient) => {
+    setSelectedIngredinet(ingredient);
+  }, []);
+
+  const handleIngredientClose = useCallback(() => {
+    setSelectedIngredinet(null);
+  }, []);
+
+  const handleOrderClick = useCallback(() => {
+    setIsOrderModalOpen(true);
+  }, []);
+
+  const handleOrderClose = useCallback(() => {
+    setIsOrderModalOpen(false);
+  }, []);
 
   // Получение данных с сервера.
   const getIngredients = async () => {
@@ -46,6 +69,7 @@ export const App = () => {
       </div>
     );
   }
+
   // 3. Если данные загрузились - показывает основной интерфейс.
 
   return (
@@ -55,9 +79,25 @@ export const App = () => {
         Соберите бургер
       </h1>
       <main className={`${styles.main} pl-5 pr-5`}>
-        <BurgerIngredients ingredients={ingredientsData} />
-        <BurgerConstructor ingredients={ingredientsData} />
+        <BurgerIngredients
+          ingredients={ingredientsData}
+          onIngredientClick={handleIngredientClick}
+        />
+        <BurgerConstructor
+          ingredients={ingredientsData}
+          onOrderClick={handleOrderClick}
+        />
       </main>
+      {selectedIngredient && (
+        <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
+          <IngredientDetails item={selectedIngredient} />
+        </Modal>
+      )}
+      {isOrderModalOpen && (
+        <Modal onClose={handleOrderClose}>
+          <OrderDetails />
+        </Modal>
+      )}
     </div>
   );
 };
