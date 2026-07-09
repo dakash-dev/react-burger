@@ -3,7 +3,7 @@ import React from 'react';
 
 import styles from './burger-ingredients.module.css';
 
-export const BurgerIngredients = ({ ingredients }) => {
+export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
   console.log(ingredients);
 
   // активируем ссылки динамически.
@@ -37,7 +37,11 @@ export const BurgerIngredients = ({ ingredients }) => {
           <ul className={styles.grid}>
             {/* Карточки */}
             {buns.map((product) => (
-              <IngredientCard key={product._id} model={product} />
+              <IngredientCard
+                key={product._id}
+                model={product}
+                onCardClick={onIngredientClick}
+              />
             ))}
           </ul>
         </div>
@@ -47,7 +51,11 @@ export const BurgerIngredients = ({ ingredients }) => {
           <ul className={styles.grid}>
             {/* Карточки */}
             {mains.map((product) => (
-              <IngredientCard key={product._id} model={product} />
+              <IngredientCard
+                key={product._id}
+                model={product}
+                onCardClick={onIngredientClick}
+              />
             ))}
           </ul>
         </div>
@@ -57,7 +65,11 @@ export const BurgerIngredients = ({ ingredients }) => {
           <ul className={styles.grid}>
             {/* Карточки */}
             {sauces.map((product) => (
-              <IngredientCard key={product._id} model={product} />
+              <IngredientCard
+                key={product._id}
+                model={product}
+                onCardClick={onIngredientClick}
+              />
             ))}
           </ul>
         </div>
@@ -67,11 +79,11 @@ export const BurgerIngredients = ({ ingredients }) => {
 };
 
 // Вспомогательный компонент для одной карточки ингредиента (ИИ сэнкс)
-const IngredientCard = ({ model }) => {
+const IngredientCard = ({ model, onCardClick }) => {
   // временная заглушка.
   const count = 0;
   return (
-    <li className={styles.card}>
+    <li className={styles.card} onClick={() => onCardClick(model)}>
       {/* Счётчик - дефолтом будет 1 - минимальное отображение. 
       0 - не отображается. */}
       {count > 0 && <Counter count={count} size="default" extraClass="m-1" />}

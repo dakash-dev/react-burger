@@ -7,7 +7,7 @@ import {
 
 import styles from './burger-constructor.module.css';
 
-export const BurgerConstructor = ({ ingredients }) => {
+export const BurgerConstructor = ({ ingredients, onOrderClick }) => {
   console.log(ingredients);
 
   const bun = ingredients.find((ingredient) => ingredient.type === 'bun');
@@ -61,7 +61,12 @@ export const BurgerConstructor = ({ ingredients }) => {
                 <CurrencyIcon type="primary" />
               </span>
               <span>
-                <Button htmlType="button" type="primary" size="large">
+                <Button
+                  htmlType="button"
+                  type="primary"
+                  size="large"
+                  onClick={onOrderClick}
+                >
                   Оформить заказ
                 </Button>
               </span>

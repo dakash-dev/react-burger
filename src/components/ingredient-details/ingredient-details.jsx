@@ -5,7 +5,7 @@ function IngredientDetails({ item }) {
     <div className={styles.container}>
       <img alt={item.name} src={item.image_large} />
       <h2 className={styles.title}>{item.name}</h2>
-      <ul className={styles.foodList}>
+      <ul className={`${styles.foodList} mb-15`}>
         <li className={styles.foodItem}>
           <span className="text text_type_main-default text_color_inactive">
             Калории, ккал
