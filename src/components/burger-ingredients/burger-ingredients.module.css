@@ -13,3 +13,49 @@
   text-align: center;
   list-style-type: none;
 }
+
+.container {
+  /* Расчет по ТЗ "реализацией и возможным ограничением высоты блока, в том числе и для разных разрешений экранов"
+  Высота AppHeader пусть ~90px
+  Заголовок «Соберите бургер»  (mt-10 mb-5) пусть ~60px.
+  Высота меню  ~60px
+  */
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+}
+
+/* Это  сетка (grid) в две колонки для карточек */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px 24px;
+  margin: 0;
+  padding: 0 16px;
+  list-style: none;
+}
+
+/* Выравниваем картинку, цену и текст строго друг под другом по центру */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Склеиваем цену и значок валюты в одну линию */
+
+.price {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 24px;
+}
+
+.ingredient_name {
+  margin: 0;
+  overflow-wrap: break-word; /* Защита от слишком длинных названий */
+}
