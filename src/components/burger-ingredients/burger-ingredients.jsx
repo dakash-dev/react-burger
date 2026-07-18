@@ -9,6 +9,32 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
   // активируем ссылки динамически.
   const [current, setCurrent] = React.useState('bun');
 
+  const containerRef = React.useRef(null);
+  const bunsRef = React.useRef(null);
+  const mainsRef = React.useRef(null);
+  const saucesRef = React.useRef(null);
+
+  const handleScroll = () => {
+    const containerTop = containerRef.current.getBoundingClientRect().top;
+    const bunsDiff = Math.abs(
+      bunsRef.current.getBoundingClientRect().top - containerTop
+    );
+    const mainsDiff = Math.abs(
+      mainsRef.current.getBoundingClientRect().top - containerTop
+    );
+    const saucesDiff = Math.abs(
+      saucesRef.current.getBoundingClientRect().top - containerTop
+    );
+
+    if (bunsDiff < mainsDiff && bunsDiff < saucesDiff) {
+      setCurrent('bun');
+    } else if (mainsDiff < bunsDiff && mainsDiff < saucesDiff) {
+      setCurrent('main');
+    } else {
+      setCurrent('sauce');
+    }
+  };
+
   // разеляем общий массив инградиентов.
   // чтобы не запутаться - оставляем близкие названия и не сокращаем.
   const buns = ingredients.filter((ingredient) => ingredient.type === 'bun');
@@ -30,10 +56,16 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
           </Tab>
         </ul>
       </nav>
-      <div className={`${styles.container} custom-scroll pt-10`}>
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className={`${styles.container} custom-scroll pt-10`}
+      >
         {/*Раздел Булки.*/}
         <div className="mb-10">
-          <h2 className="text text_type_main-medium mb-6">Булки</h2>
+          <h2 ref={bunsRef} className="text text_type_main-medium mb-6">
+            Булки
+          </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
             {buns.map((product) => (
@@ -47,7 +79,9 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
         </div>
         {/* Раздел Начинки. */}
         <div className="mb-10">
-          <h2 className="text text_type_main-medium mb-6">Начинка</h2>
+          <h2 ref={mainsRef} className="text text_type_main-medium mb-6">
+            Начинка
+          </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
             {mains.map((product) => (
@@ -61,7 +95,9 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
         </div>
         {/*Раздел Соусы.*/}
         <div className="mb-10">
-          <h2 className="text text_type_main-medium mb-6">Соусы</h2>
+          <h2 ref={saucesRef} className="text text_type_main-medium mb-6">
+            Соусы
+          </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
             {sauces.map((product) => (
