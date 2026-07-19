@@ -5,8 +5,11 @@ import IngredientDetails from '@/components/ingredient-details/ingredient-detail
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
+import {
+  setIngredientDetails,
+  clearIngredientDetails,
+} from '@/services/currentIngredient/slice';
 import { fetchIngredients } from '@/services/ingredients/action';
-// import { getIngredientsRequest } from '@/utils/burger-api';
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
@@ -18,24 +21,21 @@ export const App = () => {
   const dispatch = useDispatch();
   const { ingredients, isLoading, error } = useSelector((state) => state.ingredients);
 
-  // Сптсок инградиентов, получаемые с сервера.
-  // const [ingredientsData, setIngredientsData] = useState([]);
-  // // Состояние загрузки.
-  // const [isLoading, setIsLoading] = useState(true);
-  // // Вероятные ошибки.
-  // const [hasError, setHasError] = useState(false);
   // Состояние для открытого ингредиента
-  const [selectedIngredient, setSelectedIngredinet] = useState(null);
+  const { ingredient } = useSelector((state) => state.currentIngredient);
   // Состояние для открытия модалки заказа
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
-  const handleIngredientClick = useCallback((ingredient) => {
-    setSelectedIngredinet(ingredient);
-  }, []);
+  const handleIngredientClick = useCallback(
+    (ingredient) => {
+      dispatch(setIngredientDetails(ingredient));
+    },
+    [dispatch]
+  );
 
   const handleIngredientClose = useCallback(() => {
-    setSelectedIngredinet(null);
-  }, []);
+    dispatch(clearIngredientDetails());
+  }, [dispatch]);
 
   const handleOrderClick = useCallback(() => {
     setIsOrderModalOpen(true);
@@ -44,18 +44,6 @@ export const App = () => {
   const handleOrderClose = useCallback(() => {
     setIsOrderModalOpen(false);
   }, []);
-
-  // Получение данных с сервера.
-  // const getIngredients = async () => {
-  //   try {
-  //     const response = await getIngredientsRequest();
-  //     setIngredientsData(response.data);
-  //   } catch (error) {
-  //     setHasError(error.message);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   useEffect(() => {
     dispatch(fetchIngredients());
@@ -90,9 +78,9 @@ export const App = () => {
         />
         <BurgerConstructor ingredients={ingredients} onOrderClick={handleOrderClick} />
       </main>
-      {selectedIngredient && (
+      {ingredient && (
         <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
-          <IngredientDetails item={selectedIngredient} />
+          <IngredientDetails item={ingredient} />
         </Modal>
       )}
       {isOrderModalOpen && (
