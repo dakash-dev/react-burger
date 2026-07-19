@@ -53,3 +53,37 @@
   align-items: center;
   transform: scale(1.3); /* подсказка от ИИ */
 }
+
+/* Стили для пустых состояний (заглушек) конструктора */
+
+.empty_bun_top,
+.empty_bun_bottom,
+.empty_ingredients {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 80px;
+  background-color: #1c1c21;
+  border: 2px dashed #2f2f37;
+}
+
+/* Скругления для верхней булки по макету */
+
+.empty_bun_top {
+  border-radius: 40px 40px 10px 10px;
+}
+
+/* Скругления для нижней булки по макету */
+
+.empty_bun_bottom {
+  border-radius: 10px 10px 40px 40px;
+}
+
+/* Заглушка для центральной части (начинки и соусы) */
+
+.empty_ingredients {
+  /* Делаем небольшой отступ слева, имитируя отсутствие иконки DragIcon */
+  margin-left: 32px;
+  border-radius: 10px;
+}
