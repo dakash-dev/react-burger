@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IngredientDetails from '@/components/ingredient-details/ingredient-details';
@@ -71,13 +73,15 @@ export const App = () => {
       <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
         Соберите бургер
       </h1>
-      <main className={`${styles.main} pl-5 pr-5`}>
-        <BurgerIngredients
-          ingredients={ingredients}
-          onIngredientClick={handleIngredientClick}
-        />
-        <BurgerConstructor ingredients={ingredients} onOrderClick={handleOrderClick} />
-      </main>
+      <DndProvider backend={HTML5Backend}>
+        <main className={`${styles.main} pl-5 pr-5`}>
+          <BurgerIngredients
+            ingredients={ingredients}
+            onIngredientClick={handleIngredientClick}
+          />
+          <BurgerConstructor ingredients={ingredients} onOrderClick={handleOrderClick} />
+        </main>
+      </DndProvider>
       {ingredient && (
         <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
           <IngredientDetails item={ingredient} />
