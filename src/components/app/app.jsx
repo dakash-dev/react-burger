@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import IngredientDetails from '@/components/ingredient-details/ingredient-details';
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
-import { getIngredientsRequest } from '@/utils/burger-api';
+import { fetchIngredients } from '@/services/ingredients/action';
+// import { getIngredientsRequest } from '@/utils/burger-api';
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
@@ -13,12 +15,15 @@ import styles from './app.module.css';
 
 // Конструкция получена по документации от ИИ.
 export const App = () => {
+  const dispatch = useDispatch();
+  const { ingredients, isLoading, error } = useSelector((state) => state.ingredients);
+
   // Сптсок инградиентов, получаемые с сервера.
-  const [ingredientsData, setIngredientsData] = useState([]);
-  // Состояние загрузки.
-  const [isLoading, setIsLoading] = useState(true);
-  // Вероятные ошибки.
-  const [hasError, setHasError] = useState(false);
+  // const [ingredientsData, setIngredientsData] = useState([]);
+  // // Состояние загрузки.
+  // const [isLoading, setIsLoading] = useState(true);
+  // // Вероятные ошибки.
+  // const [hasError, setHasError] = useState(false);
   // Состояние для открытого ингредиента
   const [selectedIngredient, setSelectedIngredinet] = useState(null);
   // Состояние для открытия модалки заказа
@@ -41,20 +46,20 @@ export const App = () => {
   }, []);
 
   // Получение данных с сервера.
-  const getIngredients = async () => {
-    try {
-      const response = await getIngredientsRequest();
-      setIngredientsData(response.data);
-    } catch (error) {
-      setHasError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const getIngredients = async () => {
+  //   try {
+  //     const response = await getIngredientsRequest();
+  //     setIngredientsData(response.data);
+  //   } catch (error) {
+  //     setHasError(error.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
-    getIngredients();
-  }, []);
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   // 1. Если данные еще загружаются — показываем прелоадер и выходим
   if (isLoading) {
@@ -62,10 +67,10 @@ export const App = () => {
   }
 
   // 2. Если загрузка завершилась, но произошла ошибка — показываем текст ошибки и выходим
-  if (hasError) {
+  if (error) {
     return (
       <div className={styles.errorContainer}>
-        <div className="text text_type_main-medium">Ошибка загрузки: {hasError}</div>
+        <div className="text text_type_main-medium">Ошибка загрузки: {error}</div>
       </div>
     );
   }
@@ -80,13 +85,10 @@ export const App = () => {
       </h1>
       <main className={`${styles.main} pl-5 pr-5`}>
         <BurgerIngredients
-          ingredients={ingredientsData}
+          ingredients={ingredients}
           onIngredientClick={handleIngredientClick}
         />
-        <BurgerConstructor
-          ingredients={ingredientsData}
-          onOrderClick={handleOrderClick}
-        />
+        <BurgerConstructor ingredients={ingredients} onOrderClick={handleOrderClick} />
       </main>
       {selectedIngredient && (
         <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
