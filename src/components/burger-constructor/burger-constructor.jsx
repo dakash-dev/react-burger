@@ -4,19 +4,33 @@ import {
   Button,
   DragIcon,
 } from '@krgaa/react-developer-burger-ui-components';
-import { useSelector } from 'react-redux';
+import { useDrop } from 'react-dnd';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { addIngredient } from '@/services/burgerConstructor/slice';
 
 import styles from './burger-constructor.module.css';
 
 export const BurgerConstructor = ({ onOrderClick }) => {
+  const dispatch = useDispatch();
+
   const { bun, ingredients: constructorIngredients } = useSelector(
     (state) => state.burgerConstructor
   );
 
+  // accept: 'ingredient' — ловим только те элементы, у которых тип совпадает с useDrag карточки.
+  // drop: (item) — в момент отпускания мыши берем прилетевший ингредиент и бросаем его в Redux.
+  const [, dropTargetRef] = useDrop({
+    accept: 'ingredient',
+    drop: (item) => {
+      dispatch(addIngredient(item));
+    },
+  });
+
   console.log('Данные конструктора из Redux:', { bun, constructorIngredients });
 
   return (
-    <section className={styles.burger_constructor}>
+    <section ref={dropTargetRef} className={styles.burger_constructor}>
       <div className={`${styles.burger_list} pl-4`}>
         {/* Верхняя булка или заглушка */}
         {bun ? (
