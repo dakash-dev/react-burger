@@ -46,8 +46,21 @@ export const burgerConstructorSlice = createSlice({
       // Фильтруем массив. Здесь те ингредиенты, чей id не совпадает с удаляемым.
       state.ingredients = state.ingredients.filter((item) => item.id !== action.payload);
     },
+    moveIngredient: (state, action) => {
+      // action.payload это объект с индексами: { dragIndex: 0, hoverIndex: 1 }
+      const { dragIndex, hoverIndex } = action.payload;
+      // Копируем массив ингредиентов.
+      const newIngredients = [...state.ingredients];
+      // Вырезаем перетаскиваемый элемент из его старого места.
+      const draggedItem = newIngredients.splice(dragIndex, 1)[0];
+      // Вставка элнмента на новое место.
+      newIngredients.splice(hoverIndex, 0, draggedItem);
+      // Обновляе массива.
+      state.ingredients = newIngredients;
+    },
   },
 });
 
 // Экспортируем сгенерированный экшен наружу
-export const { addIngredient, removeIngredient } = burgerConstructorSlice.actions;
+export const { addIngredient, removeIngredient, moveIngredient } =
+  burgerConstructorSlice.actions;

@@ -4,10 +4,14 @@ import {
   Button,
   DragIcon,
 } from '@krgaa/react-developer-burger-ui-components';
-import { useDrop } from 'react-dnd';
+import { useDrop, useDrag } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { addIngredient, removeIngredient } from '@/services/burgerConstructor/slice';
+import {
+  addIngredient,
+  removeIngredient,
+  moveIngredient,
+} from '@/services/burgerConstructor/slice';
 
 import styles from './burger-constructor.module.css';
 
@@ -53,18 +57,18 @@ export const BurgerConstructor = ({ onOrderClick }) => {
         {/* Список начинок или заглушка */}
         {constructorIngredients.length > 0 ? (
           <ul className={`${styles.ingredients_set} custom-scroll`}>
-            {constructorIngredients.map((base) => (
-              // Используем уникальный id из nanoid в качестве ключа
-              <li key={base.id} className={styles.ingredients_base}>
-                <DragIcon type="primary" />
-                <ConstructorElement
-                  text={base.name}
-                  price={base.price}
-                  thumbnail={base.image}
-                  extraClass="ml-2"
-                  handleClose={() => dispatch(removeIngredient(base.id))}
-                />
-              </li>
+            {constructorIngredients.map((base, index) => (
+              <ConstructorIngredient
+                // Используем уникальный id из nanoid в качестве ключа
+                key={base.id}
+                id={base.id}
+                index={index}
+                text={base.name}
+                price={base.price}
+                thumbnail={base.image}
+                extraClass="ml-2"
+                handleClose={() => dispatch(removeIngredient(base.id))}
+              />
             ))}
           </ul>
         ) : (
@@ -115,5 +119,60 @@ export const BurgerConstructor = ({ onOrderClick }) => {
         </div>
       </div>
     </section>
+  );
+};
+
+// Компонент для одной перетаскиваемой строчки начинки/соуса
+const ConstructorIngredient = ({ id, index, text, price, thumbnail, handleClose }) => {
+  const dispatch = useDispatch();
+  // Настраиваем useDrag для перетаскивания внутри списка.
+  const [{ isDragging }, dragRef] = useDrag({
+    type: 'sort_ingredient',
+    item: { id, index }, // Передаем id и текущий индекс элемента в массиве
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  // Настраиваем useDrop, чтобы ловить соседние элементы при наведении
+  const [, dropRef] = useDrop({
+    accept: 'sort_ingredient',
+    hover: (item) => {
+      // dragIndex — индекс элемента, который мы тащим&
+      const dragIndex = item.index;
+      // hoverIndex — индекс элемента, над которым сейчас находится курсор
+      const hoverIndex = index;
+
+      // Если навели на самого себя — ничего не делаем!!!!!
+      if (dragIndex === hoverIndex) return;
+
+      // Диспатчим экшен перемещения.
+      dispatch(moveIngredient({ dragIndex, hoverIndex }));
+
+      // Для плавной сортировки.
+      item.index = hoverIndex;
+    },
+  });
+
+  // элемент делаем  прозрачным
+  const opacityStyle = isDragging ? { opacity: 0 } : { opacity: 1 };
+
+  return (
+    // Объединяем dragRef и dropRef на одном элементе
+    // чтобы он стал и перетаскиваемым, и принимающим одновременно.
+    <li
+      ref={(node) => dragRef(dropRef(node))}
+      style={opacityStyle}
+      className={styles.ingredients_base}
+    >
+      <DragIcon type="primary" />
+      <ConstructorElement
+        text={text}
+        price={price}
+        thumbnail={thumbnail}
+        extraClass="ml-2"
+        handleClose={handleClose}
+      />
+    </li>
   );
 };
