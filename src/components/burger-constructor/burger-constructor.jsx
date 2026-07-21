@@ -7,7 +7,7 @@ import {
 import { useDrop } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { addIngredient } from '@/services/burgerConstructor/slice';
+import { addIngredient, removeIngredient } from '@/services/burgerConstructor/slice';
 
 import styles from './burger-constructor.module.css';
 
@@ -62,6 +62,7 @@ export const BurgerConstructor = ({ onOrderClick }) => {
                   price={base.price}
                   thumbnail={base.image}
                   extraClass="ml-2"
+                  handleClose={() => dispatch(removeIngredient(base.id))}
                 />
               </li>
             ))}

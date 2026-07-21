@@ -40,8 +40,14 @@ export const burgerConstructorSlice = createSlice({
         };
       },
     },
+    // синхронный экшен для удаления элемента.
+    removeIngredient: (state, action) => {
+      // action.payload тут содержет уникальный id (строку из nanoid) удаляемого элемента.
+      // Фильтруем массив. Здесь те ингредиенты, чей id не совпадает с удаляемым.
+      state.ingredients = state.ingredients.filter((item) => item.id !== action.payload);
+    },
   },
 });
 
 // Экспортируем сгенерированный экшен наружу
-export const { addIngredient } = burgerConstructorSlice.actions;
+export const { addIngredient, removeIngredient } = burgerConstructorSlice.actions;
