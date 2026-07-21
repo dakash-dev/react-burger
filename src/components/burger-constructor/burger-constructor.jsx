@@ -92,7 +92,7 @@ export const BurgerConstructor = ({ onOrderClick }) => {
               type="primary"
               size="large"
               onClick={onOrderClick}
-              disabled={!bun} // Кнопка заблокирована, пока не выполним перетаскивание инградиента.
+              disabled={!bun} // Кнопка заблокирована, до перетаскивания инградиента.
             >
               Оформить заказ
             </Button>

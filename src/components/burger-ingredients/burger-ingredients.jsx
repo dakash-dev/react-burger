@@ -1,5 +1,6 @@
 import { Tab, Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
 import React from 'react';
+import { useDrag } from 'react-dnd';
 
 import styles from './burger-ingredients.module.css';
 
@@ -118,8 +119,25 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
 const IngredientCard = ({ model, onCardClick }) => {
   // временная заглушка.
   const count = 0;
+
+  const [{ isDragging }, dragRef] = useDrag({
+    type: 'ingredient',
+    item: model,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  // (opacity: 0.4) для полупрозрачности.
+  const opacityStyle = isDragging ? { opacity: 0.4 } : {};
+
   return (
-    <li className={styles.card} onClick={() => onCardClick(model)}>
+    <li
+      ref={dragRef}
+      style={opacityStyle}
+      className={styles.card}
+      onClick={() => onCardClick(model)}
+    >
       {/* Счётчик - дефолтом будет 1 - минимальное отображение. 
       0 - не отображается. */}
       {count > 0 && <Counter count={count} size="default" extraClass="m-1" />}
