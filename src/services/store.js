@@ -3,11 +3,14 @@ import { configureStore, combineSlices } from '@reduxjs/toolkit';
 import { burgerConstructorSlice } from './burgerConstructor/slice';
 import { currentIngredientSlice } from './currentIngredient/slice';
 import { ingredientsSlice } from './ingredients/slice';
+import { orderSlice } from './order/slice';
 
+// combineSlices автоматически создаст ветку в store для каждого слайса.
 const rootReducer = combineSlices(
   ingredientsSlice,
   currentIngredientSlice,
-  burgerConstructorSlice
+  burgerConstructorSlice,
+  orderSlice
 );
 
 export const store = configureStore({
