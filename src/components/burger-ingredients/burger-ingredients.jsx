@@ -3,7 +3,7 @@ import React from 'react';
 import { useDrag } from 'react-dnd';
 import { useSelector } from 'react-redux';
 
-import { selectIngredientCount } from '@/services/burgerConstructor/selectors';
+import { selectIngredientCount } from '@/services/burgerConstructor/slice';
 
 import styles from './burger-ingredients.module.css';
 

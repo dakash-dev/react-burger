@@ -7,11 +7,11 @@ import {
 import { useDrop, useDrag } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { selectTotalPrice } from '@/services/burgerConstructor/selectors';
 import {
   addIngredient,
   removeIngredient,
   moveIngredient,
+  selectTotalPrice,
 } from '@/services/burgerConstructor/slice';
 import { checkoutOrder } from '@/services/order/action';
 

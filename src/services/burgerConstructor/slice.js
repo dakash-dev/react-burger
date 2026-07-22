@@ -1,4 +1,4 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit';
+import { createSlice, nanoid, createSelector } from '@reduxjs/toolkit';
 
 const initialState = {
   bun: null,
@@ -61,6 +61,44 @@ export const burgerConstructorSlice = createSlice({
   },
 });
 
-// Экспортируем сгенерированный экшен наружу
 export const { addIngredient, removeIngredient, moveIngredient } =
   burgerConstructorSlice.actions;
+
+// Базовые селекторы для извлечения данных из стейта конструктора
+const selectBurgerConstructorState = (state) => state.burgerConstructor;
+
+export const selectConstructorBun = (state) => state.burgerConstructor.bun;
+export const selectConstructorIngredients = (state) =>
+  state.burgerConstructor.ingredients;
+
+// Мемоизированный селектор подсчета стоимости бургера
+export const selectTotalPrice = createSelector(
+  [selectConstructorBun, selectConstructorIngredients],
+  (bun, ingredients) => {
+    const ingredientsPrice = ingredients.reduce((sum, item) => sum + item.price, 0);
+    const bunPrice = bun ? bun.price * 2 : 0;
+    return ingredientsPrice + bunPrice;
+  }
+);
+
+// Мемоизированный селектор подсчета количества конкретного ингредиента
+// здесь id нужного ингредиента передается в качестве аргумента.
+export const selectIngredientCount = (ingredientId) =>
+  createSelector([selectBurgerConstructorState], (constructorState) => {
+    const { bun, ingredients } = constructorState;
+    let count = 0;
+
+    // Если запрашиваемый ID совпадает с выбранной булкой, счетчик всегда равен 2.
+    if (bun && bun._id === ingredientId) {
+      return 2;
+    }
+
+    // Считаем, сколько раз ID начинки/соуса встречается в конструкторе.
+    ingredients.forEach((item) => {
+      if (item._id === ingredientId) {
+        count += 1;
+      }
+    });
+
+    return count;
+  });
