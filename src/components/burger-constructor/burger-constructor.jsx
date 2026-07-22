@@ -7,6 +7,7 @@ import {
 import { useDrop, useDrag } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { selectTotalPrice } from '@/services/burgerConstructor/selectors';
 import {
   addIngredient,
   removeIngredient,
@@ -21,6 +22,8 @@ export const BurgerConstructor = ({ onOrderClick }) => {
   const { bun, ingredients: constructorIngredients } = useSelector(
     (state) => state.burgerConstructor
   );
+
+  const totalPrice = useSelector(selectTotalPrice);
 
   // accept: 'ingredient' — ловим только те элементы, у которых тип совпадает с useDrag карточки.
   // drop: (item) — в момент отпускания мыши берем прилетевший ингредиент и бросаем его в Redux.
@@ -101,7 +104,7 @@ export const BurgerConstructor = ({ onOrderClick }) => {
       {/* Блок стоимости и кнопка заказа */}
       <div className={`${styles.place_order} mt-10`}>
         <div className={`${styles.price_order} pr-6`}>
-          <span className="text text_type_digits-medium mr-2">0</span>
+          <span className="text text_type_digits-medium mr-2">{totalPrice}</span>
           <span className={`${styles.currency_icon} mr-10`}>
             <CurrencyIcon type="primary" />
           </span>

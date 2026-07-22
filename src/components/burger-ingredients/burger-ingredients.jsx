@@ -1,6 +1,9 @@
 import { Tab, Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import { useSelector } from 'react-redux';
+
+import { selectIngredientCount } from '@/services/burgerConstructor/selectors';
 
 import styles from './burger-ingredients.module.css';
 
@@ -117,8 +120,7 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
 
 // Вспомогательный компонент для одной карточки ингредиента (ИИ сэнкс)
 const IngredientCard = ({ model, onCardClick }) => {
-  // временная заглушка.
-  const count = 0;
+  const count = useSelector(selectIngredientCount(model._id));
 
   const [{ isDragging }, dragRef] = useDrag({
     type: 'ingredient',
