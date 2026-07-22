@@ -13,10 +13,11 @@ import {
   removeIngredient,
   moveIngredient,
 } from '@/services/burgerConstructor/slice';
+import { checkoutOrder } from '@/services/order/action';
 
 import styles from './burger-constructor.module.css';
 
-export const BurgerConstructor = ({ onOrderClick }) => {
+export const BurgerConstructor = () => {
   const dispatch = useDispatch();
 
   const { bun, ingredients: constructorIngredients } = useSelector(
@@ -113,7 +114,7 @@ export const BurgerConstructor = ({ onOrderClick }) => {
               htmlType="button"
               type="primary"
               size="large"
-              onClick={onOrderClick}
+              onClick={() => dispatch(checkoutOrder())}
               disabled={!bun} // Кнопка заблокирована, до перетаскивания инградиента.
             >
               Оформить заказ

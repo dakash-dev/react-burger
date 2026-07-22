@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ import {
   clearIngredientDetails,
 } from '@/services/currentIngredient/slice';
 import { fetchIngredients } from '@/services/ingredients/action';
+import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
@@ -25,8 +26,9 @@ export const App = () => {
 
   // Состояние для открытого ингредиента
   const { ingredient } = useSelector((state) => state.currentIngredient);
-  // Состояние для открытия модалки заказа
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
+  // Достаем состояние заказа из стора
+  const { orderNumber, isLoading: isOrderLoading } = useSelector((state) => state.order);
 
   const handleIngredientClick = useCallback(
     (ingredient) => {
@@ -39,13 +41,9 @@ export const App = () => {
     dispatch(clearIngredientDetails());
   }, [dispatch]);
 
-  const handleOrderClick = useCallback(() => {
-    setIsOrderModalOpen(true);
-  }, []);
-
   const handleOrderClose = useCallback(() => {
-    setIsOrderModalOpen(false);
-  }, []);
+    dispatch(clearOrder());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchIngredients());
@@ -66,7 +64,6 @@ export const App = () => {
   }
 
   // 3. Если данные загрузились - показывает основной интерфейс.
-
   return (
     <div className={styles.app}>
       <AppHeader />
@@ -79,7 +76,7 @@ export const App = () => {
             ingredients={ingredients}
             onIngredientClick={handleIngredientClick}
           />
-          <BurgerConstructor ingredients={ingredients} onOrderClick={handleOrderClick} />
+          <BurgerConstructor />
         </main>
       </DndProvider>
       {ingredient && (
@@ -87,7 +84,7 @@ export const App = () => {
           <IngredientDetails item={ingredient} />
         </Modal>
       )}
-      {isOrderModalOpen && (
+      {(orderNumber || isOrderLoading) && (
         <Modal onClose={handleOrderClose}>
           <OrderDetails />
         </Modal>
