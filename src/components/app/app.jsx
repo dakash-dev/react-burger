@@ -22,7 +22,7 @@ import styles from './app.module.css';
 // Конструкция получена по документации от ИИ.
 export const App = () => {
   const dispatch = useDispatch();
-  const { ingredients, isLoading, error } = useSelector((state) => state.ingredients);
+  const { isLoading, error } = useSelector((state) => state.ingredients);
 
   // Состояние для открытого ингредиента
   const { ingredient } = useSelector((state) => state.currentIngredient);
@@ -72,10 +72,7 @@ export const App = () => {
       </h1>
       <DndProvider backend={HTML5Backend}>
         <main className={`${styles.main} pl-5 pr-5`}>
-          <BurgerIngredients
-            ingredients={ingredients}
-            onIngredientClick={handleIngredientClick}
-          />
+          <BurgerIngredients onIngredientClick={handleIngredientClick} />
           <BurgerConstructor />
         </main>
       </DndProvider>
