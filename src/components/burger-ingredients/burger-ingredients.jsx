@@ -7,7 +7,9 @@ import { selectIngredientCount } from '@/services/burgerConstructor/slice';
 
 import styles from './burger-ingredients.module.css';
 
-export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
+// Убрал проп ingredients.
+export const BurgerIngredients = ({ onIngredientClick }) => {
+  const { ingredients } = useSelector((state) => state.ingredients);
   console.log(ingredients);
 
   // активируем ссылки динамически.
