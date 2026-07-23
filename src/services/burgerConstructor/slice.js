@@ -1,5 +1,7 @@
 import { createSlice, nanoid, createSelector } from '@reduxjs/toolkit';
 
+import { checkoutOrder } from '../order/action';
+
 const initialState = {
   bun: null,
   ingredients: [],
@@ -58,10 +60,25 @@ export const burgerConstructorSlice = createSlice({
       // Обновляе массива.
       state.ingredients = newIngredients;
     },
+    // очищать конструктор после успешного получения номера
+    // заказа с сервера в блоке .then или после закрытия попапа
+    // с номером заказа, чтобы пользователь мог следующий
+    // заказ сделать, не удаляя старые ингредиенты
+    resetConstructor: (state) => {
+      state.bun = null;
+      state.ingredients = [];
+    },
+  },
+  // при успешном заказе сброс булук и начинок в исходное - пустое состояние!
+  extraReducers: (builder) => {
+    builder.addCase(checkoutOrder.fulfilled, (state) => {
+      state.bun = null;
+      state.ingredients = [];
+    });
   },
 });
 
-export const { addIngredient, removeIngredient, moveIngredient } =
+export const { addIngredient, removeIngredient, moveIngredient, resetConstructor } =
   burgerConstructorSlice.actions;
 
 // Базовые селекторы для извлечения данных из стейта конструктора
