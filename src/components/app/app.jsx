@@ -1,10 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDispatch, useSelector } from 'react-redux';
 
 import IngredientDetails from '@/components/ingredient-details/ingredient-details';
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
-import { getIngredientsRequest } from '@/utils/burger-api';
+import {
+  setIngredientDetails,
+  clearIngredientDetails,
+} from '@/services/currentIngredient/slice';
+import { fetchIngredients } from '@/services/ingredients/action';
+import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
@@ -13,48 +21,33 @@ import styles from './app.module.css';
 
 // Конструкция получена по документации от ИИ.
 export const App = () => {
-  // Сптсок инградиентов, получаемые с сервера.
-  const [ingredientsData, setIngredientsData] = useState([]);
-  // Состояние загрузки.
-  const [isLoading, setIsLoading] = useState(true);
-  // Вероятные ошибки.
-  const [hasError, setHasError] = useState(false);
-  // Состояние для открытого ингредиента
-  const [selectedIngredient, setSelectedIngredinet] = useState(null);
-  // Состояние для открытия модалки заказа
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.ingredients);
 
-  const handleIngredientClick = useCallback((ingredient) => {
-    setSelectedIngredinet(ingredient);
-  }, []);
+  // Состояние для открытого ингредиента
+  const { ingredient } = useSelector((state) => state.currentIngredient);
+
+  // Достаем состояние заказа из стора
+  const { orderNumber, isLoading: isOrderLoading } = useSelector((state) => state.order);
+
+  const handleIngredientClick = useCallback(
+    (ingredient) => {
+      dispatch(setIngredientDetails(ingredient));
+    },
+    [dispatch]
+  );
 
   const handleIngredientClose = useCallback(() => {
-    setSelectedIngredinet(null);
-  }, []);
-
-  const handleOrderClick = useCallback(() => {
-    setIsOrderModalOpen(true);
-  }, []);
+    dispatch(clearIngredientDetails());
+  }, [dispatch]);
 
   const handleOrderClose = useCallback(() => {
-    setIsOrderModalOpen(false);
-  }, []);
-
-  // Получение данных с сервера.
-  const getIngredients = async () => {
-    try {
-      const response = await getIngredientsRequest();
-      setIngredientsData(response.data);
-    } catch (error) {
-      setHasError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    dispatch(clearOrder());
+  }, [dispatch]);
 
   useEffect(() => {
-    getIngredients();
-  }, []);
+    dispatch(fetchIngredients());
+  }, [dispatch]);
 
   // 1. Если данные еще загружаются — показываем прелоадер и выходим
   if (isLoading) {
@@ -62,38 +55,33 @@ export const App = () => {
   }
 
   // 2. Если загрузка завершилась, но произошла ошибка — показываем текст ошибки и выходим
-  if (hasError) {
+  if (error) {
     return (
       <div className={styles.errorContainer}>
-        <div className="text text_type_main-medium">Ошибка загрузки: {hasError}</div>
+        <div className="text text_type_main-medium">Ошибка загрузки: {error}</div>
       </div>
     );
   }
 
   // 3. Если данные загрузились - показывает основной интерфейс.
-
   return (
     <div className={styles.app}>
       <AppHeader />
       <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
         Соберите бургер
       </h1>
-      <main className={`${styles.main} pl-5 pr-5`}>
-        <BurgerIngredients
-          ingredients={ingredientsData}
-          onIngredientClick={handleIngredientClick}
-        />
-        <BurgerConstructor
-          ingredients={ingredientsData}
-          onOrderClick={handleOrderClick}
-        />
-      </main>
-      {selectedIngredient && (
+      <DndProvider backend={HTML5Backend}>
+        <main className={`${styles.main} pl-5 pr-5`}>
+          <BurgerIngredients onIngredientClick={handleIngredientClick} />
+          <BurgerConstructor />
+        </main>
+      </DndProvider>
+      {ingredient && (
         <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
-          <IngredientDetails item={selectedIngredient} />
+          <IngredientDetails item={ingredient} />
         </Modal>
       )}
-      {isOrderModalOpen && (
+      {(orderNumber || isOrderLoading) && (
         <Modal onClose={handleOrderClose}>
           <OrderDetails />
         </Modal>

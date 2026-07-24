@@ -1,13 +1,45 @@
 import { Tab, Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
 import React from 'react';
+import { useDrag } from 'react-dnd';
+import { useSelector } from 'react-redux';
+
+import { selectIngredientCount } from '@/services/burgerConstructor/slice';
 
 import styles from './burger-ingredients.module.css';
 
-export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
+// Убрал проп ingredients.
+export const BurgerIngredients = ({ onIngredientClick }) => {
+  const { ingredients } = useSelector((state) => state.ingredients);
   console.log(ingredients);
 
   // активируем ссылки динамически.
   const [current, setCurrent] = React.useState('bun');
+
+  const containerRef = React.useRef(null);
+  const bunsRef = React.useRef(null);
+  const mainsRef = React.useRef(null);
+  const saucesRef = React.useRef(null);
+
+  const handleScroll = () => {
+    const containerTop = containerRef.current.getBoundingClientRect().top;
+    const bunsDiff = Math.abs(
+      bunsRef.current.getBoundingClientRect().top - containerTop
+    );
+    const mainsDiff = Math.abs(
+      mainsRef.current.getBoundingClientRect().top - containerTop
+    );
+    const saucesDiff = Math.abs(
+      saucesRef.current.getBoundingClientRect().top - containerTop
+    );
+
+    if (bunsDiff < mainsDiff && bunsDiff < saucesDiff) {
+      setCurrent('bun');
+    } else if (mainsDiff < bunsDiff && mainsDiff < saucesDiff) {
+      setCurrent('main');
+    } else {
+      setCurrent('sauce');
+    }
+  };
 
   // разеляем общий массив инградиентов.
   // чтобы не запутаться - оставляем близкие названия и не сокращаем.
@@ -30,10 +62,16 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
           </Tab>
         </ul>
       </nav>
-      <div className={`${styles.container} custom-scroll pt-10`}>
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className={`${styles.container} custom-scroll pt-10`}
+      >
         {/*Раздел Булки.*/}
         <div className="mb-10">
-          <h2 className="text text_type_main-medium mb-6">Булки</h2>
+          <h2 ref={bunsRef} className="text text_type_main-medium mb-6">
+            Булки
+          </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
             {buns.map((product) => (
@@ -47,7 +85,9 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
         </div>
         {/* Раздел Начинки. */}
         <div className="mb-10">
-          <h2 className="text text_type_main-medium mb-6">Начинка</h2>
+          <h2 ref={mainsRef} className="text text_type_main-medium mb-6">
+            Начинка
+          </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
             {mains.map((product) => (
@@ -61,7 +101,9 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
         </div>
         {/*Раздел Соусы.*/}
         <div className="mb-10">
-          <h2 className="text text_type_main-medium mb-6">Соусы</h2>
+          <h2 ref={saucesRef} className="text text_type_main-medium mb-6">
+            Соусы
+          </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
             {sauces.map((product) => (
@@ -80,10 +122,26 @@ export const BurgerIngredients = ({ ingredients, onIngredientClick }) => {
 
 // Вспомогательный компонент для одной карточки ингредиента (ИИ сэнкс)
 const IngredientCard = ({ model, onCardClick }) => {
-  // временная заглушка.
-  const count = 0;
+  const count = useSelector(selectIngredientCount(model._id));
+
+  const [{ isDragging }, dragRef] = useDrag({
+    type: 'ingredient',
+    item: model,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  // (opacity: 0.4) для полупрозрачности.
+  const opacityStyle = isDragging ? { opacity: 0.4 } : {};
+
   return (
-    <li className={styles.card} onClick={() => onCardClick(model)}>
+    <li
+      ref={dragRef}
+      style={opacityStyle}
+      className={styles.card}
+      onClick={() => onCardClick(model)}
+    >
       {/* Счётчик - дефолтом будет 1 - минимальное отображение. 
       0 - не отображается. */}
       {count > 0 && <Counter count={count} size="default" extraClass="m-1" />}
