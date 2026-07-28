@@ -1,6 +1,7 @@
-import { useCallback, useDispatch } from 'react';
+import { useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDispatch } from 'react-redux';
 
 import { setIngredientDetails } from '@/services/currentIngredient/slice';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
