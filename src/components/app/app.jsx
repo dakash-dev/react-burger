@@ -5,13 +5,18 @@ import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
-import { Home } from '@/pages/home/home';
 import { fetchIngredients } from '@/services/ingredients/action';
 import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
-import IngredientPage from '@pages/ingredient/ingredient';
-import { Login } from '@pages/login/login';
-import { Register } from '@pages/register/register';
+
+import {
+  Home,
+  Register,
+  Login,
+  ForgotPassword,
+  ResetPassword,
+  IngredientPage,
+} from '../../pages';
 
 import styles from './app.module.css';
 
@@ -56,6 +61,8 @@ export const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* заход по прямой ссылке (без фона) */}
         <Route path="/ingredients/:id" element={<IngredientPage />} />
       </Routes>
