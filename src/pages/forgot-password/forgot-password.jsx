@@ -1,8 +1,7 @@
 import { Button, EmailInput } from '@krgaa/react-developer-burger-ui-components';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { checkResponse } from '@/utils/check-response';
-import { BASE_URL } from '@/utils/constants';
+import { passwordResetRequest } from '@/utils/burger-api';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import styles from './forgot-password.module.css';
@@ -16,14 +15,7 @@ export const ForgotPassword = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    fetch(`${BASE_URL}/password-reset`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(values),
-    })
-      .then(checkResponse)
+    passwordResetRequest(values.email)
       .then((data) => {
         if (data.success) {
           // Устанавливаем флаг, что пользователь пришел со страницы восстановления.

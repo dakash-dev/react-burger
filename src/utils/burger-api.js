@@ -64,12 +64,12 @@ export const getIngredientsRequest = () => {
 // Добавление функции POST-запроса для оформления заказа.
 // Примем весь массив ID ингредиентов: { ingredients: ['id1', 'id2', ...] }
 export const createOrderRequest = (ingredientIds) => {
-  return request('/orders', {
+  return fetchWithRefresh('/orders', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      authorization: localStorage.getItem('accessToken'),
     },
-    authorization: localStorage.getItem('accessToken'),
     // Для корректной отправки на сервер (из JS).
     body: JSON.stringify({
       ingredients: ingredientIds,
@@ -109,5 +109,50 @@ export const logoutUserRequest = () => {
     body: JSON.stringify({
       token: localStorage.getItem('refreshToken'),
     }),
+  });
+};
+
+// Запрос на восстановление пароля (отправка email)
+export const passwordResetRequest = (email) => {
+  return request('/password-reset', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+};
+
+// Запрос на сброс пароля (установка нового пароля по коду)
+export const passwordResetConfirmRequest = (form) => {
+  return request('/password-reset/reset', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(form),
+  });
+};
+
+// Получение данных пользователя профиля
+export const getUserRequest = () => {
+  return fetchWithRefresh('/auth/user', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: localStorage.getItem('accessToken'),
+    },
+  });
+};
+
+// Обновление данных пользователя профиля
+export const updateUserRequest = (form) => {
+  return fetchWithRefresh('/auth/user', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: localStorage.getItem('accessToken'),
+    },
+    body: JSON.stringify(form),
   });
 };
