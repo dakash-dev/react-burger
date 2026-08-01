@@ -10,6 +10,8 @@ import { fetchIngredients } from '@/services/ingredients/action';
 import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
 import IngredientPage from '@pages/ingredient/ingredient';
+import { Login } from '@pages/login/login';
+import { Register } from '@pages/register/register';
 
 import styles from './app.module.css';
 
@@ -52,6 +54,8 @@ export const App = () => {
       <AppHeader />
       <Routes location={backgroundLocation || location}>
         <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
         {/* заход по прямой ссылке (без фона) */}
         <Route path="/ingredients/:id" element={<IngredientPage />} />
       </Routes>
