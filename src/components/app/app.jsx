@@ -1,33 +1,28 @@
 import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
-import IngredientDetails from '@/components/ingredient-details/ingredient-details';
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
-import { clearIngredientDetails } from '@/services/currentIngredient/slice';
+import { Home } from '@/pages/home/home';
 import { fetchIngredients } from '@/services/ingredients/action';
 import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
-import { Home } from '@pages/home';
+import IngredientPage from '@pages/ingredient/ingredient';
 
 import styles from './app.module.css';
 
-// Конструкция получена по документации от ИИ.
 export const App = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Фоновая локация.
+  const backgroundLocation = location.state && location.state.background;
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.ingredients);
 
-  // Состояние для открытого ингредиента
-  const { ingredient } = useSelector((state) => state.currentIngredient);
-
   // Достаем состояние заказа из стора
   const { orderNumber, isLoading: isOrderLoading } = useSelector((state) => state.order);
-
-  const handleIngredientClose = useCallback(() => {
-    dispatch(clearIngredientDetails());
-  }, [dispatch]);
 
   const handleOrderClose = useCallback(() => {
     dispatch(clearOrder());
@@ -55,15 +50,26 @@ export const App = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes>
+      <Routes location={backgroundLocation || location}>
         <Route path="/" element={<Home />} />
+        {/* заход по прямой ссылке (без фона) */}
+        <Route path="/ingredients/:id" element={<IngredientPage />} />
       </Routes>
 
-      {ingredient && (
-        <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
-          <IngredientDetails item={ingredient} />
-        </Modal>
+      {backgroundLocation && (
+        <Routes>
+          <Route
+            path="/ingredients/:id"
+            element={
+              <Modal title="Детали ингредиента" onClose={() => navigate('/')}>
+                {/* Используем твою же страницу внутри модалки! Она сама вытащит ID из урла */}
+                <IngredientPage />
+              </Modal>
+            }
+          />
+        </Routes>
       )}
+
       {(orderNumber || isOrderLoading) && (
         <Modal onClose={handleOrderClose}>
           <OrderDetails />

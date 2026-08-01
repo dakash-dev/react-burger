@@ -1,24 +1,12 @@
-import { useCallback } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useDispatch } from 'react-redux';
 
-import { setIngredientDetails } from '@/services/currentIngredient/slice';
 import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
 import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
 
 import styles from './home.module.css';
 
 export const Home = () => {
-  const dispatch = useDispatch();
-
-  const handleIngredientClick = useCallback(
-    (ingredient) => {
-      dispatch(setIngredientDetails(ingredient));
-    },
-    [dispatch]
-  );
-
   return (
     <div>
       <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
@@ -26,7 +14,7 @@ export const Home = () => {
       </h1>
       <DndProvider backend={HTML5Backend}>
         <main className={`${styles.main} pl-5 pr-5`}>
-          <BurgerIngredients onIngredientClick={handleIngredientClick} />
+          <BurgerIngredients />
           <BurgerConstructor />
         </main>
       </DndProvider>

@@ -1,6 +1,8 @@
 import styles from './ingredient-details.module.css';
 
 function IngredientDetails({ item }) {
+  if (!item) return null; // Защита от undefined при первой загрузке
+
   return (
     <div className={styles.container}>
       <img alt={item.name} src={item.image_large} />

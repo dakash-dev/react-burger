@@ -2,13 +2,13 @@ import { Tab, Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-com
 import React from 'react';
 import { useDrag } from 'react-dnd';
 import { useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { selectIngredientCount } from '@/services/burgerConstructor/slice';
 
 import styles from './burger-ingredients.module.css';
 
-// Убрал проп ingredients.
-export const BurgerIngredients = ({ onIngredientClick }) => {
+export const BurgerIngredients = () => {
   const { ingredients } = useSelector((state) => state.ingredients);
   console.log(ingredients);
 
@@ -75,11 +75,7 @@ export const BurgerIngredients = ({ onIngredientClick }) => {
           <ul className={styles.grid}>
             {/* Карточки */}
             {buns.map((product) => (
-              <IngredientCard
-                key={product._id}
-                model={product}
-                onCardClick={onIngredientClick}
-              />
+              <IngredientCard key={product._id} model={product} />
             ))}
           </ul>
         </div>
@@ -91,11 +87,7 @@ export const BurgerIngredients = ({ onIngredientClick }) => {
           <ul className={styles.grid}>
             {/* Карточки */}
             {mains.map((product) => (
-              <IngredientCard
-                key={product._id}
-                model={product}
-                onCardClick={onIngredientClick}
-              />
+              <IngredientCard key={product._id} model={product} />
             ))}
           </ul>
         </div>
@@ -107,11 +99,7 @@ export const BurgerIngredients = ({ onIngredientClick }) => {
           <ul className={styles.grid}>
             {/* Карточки */}
             {sauces.map((product) => (
-              <IngredientCard
-                key={product._id}
-                model={product}
-                onCardClick={onIngredientClick}
-              />
+              <IngredientCard key={product._id} model={product} />
             ))}
           </ul>
         </div>
@@ -121,7 +109,9 @@ export const BurgerIngredients = ({ onIngredientClick }) => {
 };
 
 // Вспомогательный компонент для одной карточки ингредиента (ИИ сэнкс)
-const IngredientCard = ({ model, onCardClick }) => {
+const IngredientCard = ({ model }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const count = useSelector(selectIngredientCount(model._id));
 
   const [{ isDragging }, dragRef] = useDrag({
@@ -140,7 +130,9 @@ const IngredientCard = ({ model, onCardClick }) => {
       ref={dragRef}
       style={opacityStyle}
       className={styles.card}
-      onClick={() => onCardClick(model)}
+      onClick={() =>
+        navigate(`/ingredients/${model._id}`, { state: { background: location } })
+      }
     >
       {/* Счётчик - дефолтом будет 1 - минимальное отображение. 
       0 - не отображается. */}
