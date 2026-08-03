@@ -19,8 +19,8 @@ export const clearTokens = () => {
 };
 
 // Запрос на обновление токена
-export const refreshTokenRequest = () => {
-  return request('/auth/token', {
+export const refreshTokenRequest = async () => {
+  const data = await request('/auth/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -29,34 +29,39 @@ export const refreshTokenRequest = () => {
       token: localStorage.getItem('refreshToken'),
     }),
   });
+
+  if (data && data.success) {
+    setTokens(data.accessToken, data.refreshToken);
+  }
+  return data;
 };
 
 export const fetchWithRefresh = async (endpoint, options) => {
+  const fetchOptions = { ...options };
   try {
-    const res = await fetch(`${BASE_URL}${endpoint}`, options);
+    const res = await fetch(`${BASE_URL}${endpoint}`, fetchOptions);
     return await checkResponse(res);
   } catch (err) {
     const isTokenExpired =
       err.message === 'jwt expired' || err.statusCode === 401 || err.statusCode === 403;
     // Если сервер ответил, что токен протух, запускаем обновление.
-    if (isTokenExpired && !options._retry) {
+    if (isTokenExpired && !fetchOptions._retry) {
       // флаг-предохранитель, чтобы не уйти в бесконечный цикл.
-      options._retry = true;
+      fetchOptions._retry = true;
+
       const refreshData = await refreshTokenRequest();
       if (!refreshData.success) {
         return Promise.reject(refreshData);
       }
-      // Сохраняем новые токены в localStorage.
-      setTokens(refreshData.accessToken, refreshData.refreshToken);
 
       // Подставляем свежий токен в загаловки изначального запроса.
-      options.headers = {
-        ...options.headers,
+      fetchOptions.headers = {
+        ...options.headers, //  берем старые заголовки из оригинального объекта
         authorization: refreshData.accessToken,
       };
 
       // Повторяем изначальный запрос заново.
-      const res = await fetch(`${BASE_URL}${endpoint}`, options);
+      const res = await fetch(`${BASE_URL}${endpoint}`, fetchOptions);
       return await checkResponse(res);
     } else {
       return Promise.reject(err);
@@ -132,7 +137,7 @@ export const passwordResetRequest = (form) => {
 
 // Сброс пароля — принимает объект { password: "...", token: "..." }
 export const passwordResetConfirmRequest = (form) => {
-  return request('/password-reset/reset-password', {
+  return request('/password-reset/reset', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
