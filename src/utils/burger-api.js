@@ -36,8 +36,10 @@ export const fetchWithRefresh = async (endpoint, options) => {
     const res = await fetch(`${BASE_URL}${endpoint}`, options);
     return await checkResponse(res);
   } catch (err) {
+    const isTokenExpired =
+      err.message === 'jwt expired' || err.statusCode === 401 || err.statusCode === 403;
     // Если сервер ответил, что токен протух, запускаем обновление.
-    if (err.message === 'jwt expired') {
+    if (isTokenExpired) {
       const refreshData = await refreshTokenRequest();
       if (!refreshData.success) {
         return Promise.reject(refreshData);
@@ -46,7 +48,10 @@ export const fetchWithRefresh = async (endpoint, options) => {
       setTokens(refreshData.accessToken, refreshData.refreshToken);
 
       // Подставляем свежий токен в загаловки изначального запроса.
-      options.headers.authorization = refreshData.accessToken;
+      options.headers = {
+        ...options.headers,
+        authorization: refreshData.accessToken,
+      };
 
       // Повторяем изначальный запрос заново.
       const res = await fetch(`${BASE_URL}${endpoint}`, options);
