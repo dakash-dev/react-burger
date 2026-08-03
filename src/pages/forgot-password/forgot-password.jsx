@@ -15,7 +15,7 @@ export const ForgotPassword = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    passwordResetRequest(values.email)
+    passwordResetRequest(values)
       .then((data) => {
         if (data.success) {
           // Устанавливаем флаг, что пользователь пришел со страницы восстановления.

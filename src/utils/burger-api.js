@@ -112,25 +112,28 @@ export const logoutUserRequest = () => {
   });
 };
 
-// Запрос на восстановление пароля (отправка email)
-export const passwordResetRequest = (email) => {
+// Восстановление пароля — принимает объект { email: "..." }
+export const passwordResetRequest = (form) => {
   return request('/password-reset', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email }),
+    body: JSON.stringify(form),
   });
 };
 
-// Запрос на сброс пароля (установка нового пароля по коду)
+// Сброс пароля — принимает объект { password: "...", token: "..." }
 export const passwordResetConfirmRequest = (form) => {
-  return request('/password-reset/reset', {
+  return request('/password-reset/reset-password', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(form),
+    body: JSON.stringify({
+      password: form.password,
+      token: form.token,
+    }),
   });
 };
 

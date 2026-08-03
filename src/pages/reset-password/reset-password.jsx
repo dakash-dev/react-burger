@@ -3,21 +3,28 @@ import {
   Input,
   PasswordInput,
 } from '@krgaa/react-developer-burger-ui-components';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { passwordResetConfirmRequest } from '@/utils/burger-api';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import styles from './reset-password.module.css';
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
+  const [isAllowed, setIsAllowed] = useState(false);
 
   // Проверка флага при монтировании страницы.
   useEffect(() => {
     const wasVisited = localStorage.getItem('forgotPasswordVisited');
+
+    // Если флага нет — жестко уводим на forgot-password
     if (!wasVisited) {
-      navigate('/forgot-password', { replace: true });
+      navigate('/forgot-password');
+    } else {
+      // Если флаг есть — разрешаем показ формы
+      setIsAllowed(true);
     }
   }, [navigate]);
 
@@ -28,12 +35,24 @@ export const ResetPassword = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('Данные сброса пароля:', values);
+    console.log('Данные перед отправкой на сервер:', values);
 
-    // В случае успеха по ТЗ: очищаем флаг и отправляем на логин.
-    localStorage.removeItem('forgotPasswordVisited');
-    navigate('/login');
+    // Вызываем метод сетевого слоя и передаем объект с данными формы
+    passwordResetConfirmRequest(values)
+      .then((data) => {
+        if (data.success) {
+          // В случае успеха очищаем флаг и отправляем на логин по ТЗ
+          localStorage.removeItem('forgotPasswordVisited');
+          navigate('/login');
+        }
+      })
+      .catch((err) => console.error('Ошибка сброса пароля:', err));
   };
+
+  // Если зашли напрямую, прерываем рендер, чтобы страница не падала в "белый экран"
+  if (!isAllowed) {
+    return null;
+  }
 
   return (
     <div className={styles.wrapper}>
