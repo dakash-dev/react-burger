@@ -39,7 +39,9 @@ export const fetchWithRefresh = async (endpoint, options) => {
     const isTokenExpired =
       err.message === 'jwt expired' || err.statusCode === 401 || err.statusCode === 403;
     // Если сервер ответил, что токен протух, запускаем обновление.
-    if (isTokenExpired) {
+    if (isTokenExpired && !options._retry) {
+      // флаг-предохранитель, чтобы не уйти в бесконечный цикл.
+      options._retry = true;
       const refreshData = await refreshTokenRequest();
       if (!refreshData.success) {
         return Promise.reject(refreshData);
