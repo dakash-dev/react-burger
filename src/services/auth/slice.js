@@ -68,24 +68,20 @@ export const logoutUser = createAsyncThunk(
 export const checkUserAuth = createAsyncThunk(
   'auth/checkUser',
   async (_, { dispatch }) => {
-    // Проверяка наличие токена в браузере.
-    if (localStorage.getItem('accessToken')) {
-      try {
-        // 2. Если токен есть, то запрос к серверу за данными пользователя.
+    try {
+      // Проверка находится внутри try — код читается сверху вниз
+      if (localStorage.getItem('accessToken')) {
         const data = await getUserRequest();
         if (data && data.success) {
           dispatch(setUser(data.user));
         }
-      } catch {
-        // Если токен невалиден или отозван — чистим хранилище.
-        clearTokens();
-        dispatch(setUser(null));
-      } finally {
-        // 3. Проверка в любом случае завершена
-        dispatch(setAuthChecked(true));
       }
-    } else {
-      // Токена нет — сразу считаем пользователя неавторизованным
+    } catch {
+      // Если токен невалиден или отозван — чистим хранилище
+      clearTokens();
+      dispatch(setUser(null));
+    } finally {
+      // Выполнится ВСЕГДА: и при успехе, и при ошибке, и если токена вообще не было
       dispatch(setAuthChecked(true));
     }
   }
