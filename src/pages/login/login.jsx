@@ -3,13 +3,18 @@ import {
   EmailInput,
   PasswordInput,
 } from '@krgaa/react-developer-burger-ui-components';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
+import { loginUser, selectAuthLoading } from '../../services/auth/slice';
+
 import styles from './login.module.css';
 
 export const Login = () => {
+  const dispatch = useDispatch();
+  const isAuthLoading = useSelector(selectAuthLoading);
   const { values, handleChange, isValid } = useFormWithValidation({
     email: '',
     password: '',
@@ -17,7 +22,8 @@ export const Login = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('Данные формы авторизации:', values);
+    dispatch(loginUser(values));
+    // console.log('Данные формы авторизации:', values);
   };
 
   return (
@@ -41,8 +47,13 @@ export const Login = () => {
           extraClass="mb-6"
         />
 
-        <Button htmlType="submit" type="primary" size="medium" disabled={!isValid}>
-          Войти
+        <Button
+          htmlType="submit"
+          type="primary"
+          size="medium"
+          disabled={!isValid || isAuthLoading}
+        >
+          {isAuthLoading ? 'Вход...' : 'Войти'}
         </Button>
       </form>
 
