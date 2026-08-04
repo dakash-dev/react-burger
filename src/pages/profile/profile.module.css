@@ -1,14 +1,25 @@
 .wrapper {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
-  margin-top: 120px;
+  max-width: 1200px;
+  margin: 120px auto 0;
+
+  /* margin-top: 120px; */
+
+  /* padding-left: 40px; */
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
-  min-width: 280px;
+  width: 320px;
+  min-width: 240px;
+}
+
+.sidebar p {
+  line-height: 1.5;
+  opacity: 0.4;
 }
 
 .tab_link {
@@ -18,7 +29,7 @@
 }
 
 .tab_active {
-  color: #f2f2f3 !important; /* Белый цвет из дизайн-системы Практикума */
+  color: #f2f2f3 !important;
 }
 
 .logout_btn {
