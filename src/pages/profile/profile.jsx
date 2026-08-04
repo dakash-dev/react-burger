@@ -8,13 +8,19 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
-import { logoutUser, selectUser } from '../../services/auth/slice';
+import {
+  logoutUser,
+  updateUser,
+  selectUser,
+  selectAuthLoading,
+} from '@services/auth/slice';
 
 import styles from './profile.module.css';
 
 export const ProfilePage = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
+  const isAuthLoading = useSelector(selectAuthLoading);
 
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [isFormChanged, setIsFormChanged] = useState(false);
@@ -43,7 +49,11 @@ export const ProfilePage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Отправка PATCH-запроса:', form);
+    dispatch(updateUser(form))
+      .unwrap()
+      .then(() => setIsFormChanged(false))
+      .catch((err) => console.error('Ошибка обновления профиля:', err));
+    // console.log('Отправка PATCH-запроса:', form);
   };
 
   return (
@@ -72,6 +82,7 @@ export const ProfilePage = () => {
           value={form.name}
           name="name"
           icon="EditIcon"
+          disabled={isAuthLoading}
           extraClass="mb-6"
         />
         <EmailInput
@@ -80,6 +91,7 @@ export const ProfilePage = () => {
           name="email"
           placeholder="Логин"
           isIcon={true}
+          disabled={isAuthLoading}
           extraClass="mb-6"
         />
         <PasswordInput
@@ -88,15 +100,26 @@ export const ProfilePage = () => {
           name="password"
           icon="EditIcon"
           placeholder="Пароль"
+          disabled={isAuthLoading}
           extraClass="mb-6"
         />
         {isFormChanged && (
           <div className={styles.buttons_container}>
-            <button type="button" onClick={handleCancel} className={styles.cancel_btn}>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className={styles.cancel_btn}
+              disabled={isAuthLoading}
+            >
               Отмена
             </button>
-            <Button htmlType="submit" type="primary" size="medium">
-              Сохранить
+            <Button
+              htmlType="submit"
+              type="primary"
+              size="medium"
+              disabled={isAuthLoading}
+            >
+              {isAuthLoading ? 'Сохранение...' : 'Сохранить'}
             </Button>
           </div>
         )}
