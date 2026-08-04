@@ -17,6 +17,7 @@ import {
   ResetPassword,
   IngredientPage,
 } from '../../pages';
+import { checkUserAuth, selectIsAuthChecked } from '../../services/auth/slice';
 
 import styles from './app.module.css';
 
@@ -26,7 +27,11 @@ export const App = () => {
   // Фоновая локация.
   const backgroundLocation = location.state && location.state.background;
   const dispatch = useDispatch();
-  const { isLoading, error } = useSelector((state) => state.ingredients);
+
+  const { isLoading: isIngredientsLoading, error } = useSelector(
+    (state) => state.ingredients
+  );
+  const isAuthChecked = useSelector(selectIsAuthChecked);
 
   // Достаем состояние заказа из стора
   const { orderNumber, isLoading: isOrderLoading } = useSelector((state) => state.order);
@@ -37,10 +42,11 @@ export const App = () => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
+    dispatch(checkUserAuth());
   }, [dispatch]);
 
   // 1. Если данные еще загружаются — показываем прелоадер и выходим
-  if (isLoading) {
+  if (isIngredientsLoading || !isAuthChecked) {
     return <Preloader />;
   }
 
