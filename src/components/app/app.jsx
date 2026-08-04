@@ -8,6 +8,7 @@ import Preloader from '@/components/preloader/preloader';
 import { fetchIngredients } from '@/services/ingredients/action';
 import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
+import { OnlyAuth, OnlyUnAuth } from '@components/protected-route/protected-route';
 
 import {
   Home,
@@ -16,6 +17,7 @@ import {
   ForgotPassword,
   ResetPassword,
   IngredientPage,
+  ProfilePage,
 } from '../../pages';
 import { checkUserAuth, selectIsAuthChecked } from '../../services/auth/slice';
 
@@ -65,10 +67,19 @@ export const App = () => {
       <AppHeader />
       <Routes location={backgroundLocation || location}>
         <Route path="/" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        {/* Гостевые зоны: авторизованые уходят на главную или назад */}
+        <Route path="/register" element={<OnlyUnAuth component={<Register />} />} />
+        <Route path="/login" element={<OnlyUnAuth component={<Login />} />} />
+        <Route
+          path="/forgot-password"
+          element={<OnlyUnAuth component={<ForgotPassword />} />}
+        />
+        <Route
+          path="/reset-password"
+          element={<OnlyUnAuth component={<ResetPassword />} />}
+        />
+        {/* Защищенная зона: неавторизованные уходят на /login с сохранением истории */}
+        <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />} />
         {/* заход по прямой ссылке (без фона) */}
         <Route path="/ingredients/:id" element={<IngredientPage />} />
       </Routes>

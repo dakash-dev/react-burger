@@ -1,0 +1,63 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 120px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+}
+
+.tab_link {
+  display: block;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.tab_active {
+  color: #f2f2f3 !important; /* Белый цвет из дизайн-системы Практикума */
+}
+
+.logout_btn {
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.logout_btn:hover,
+.tab_link:hover {
+  color: #f2f2f3 !important;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+}
+
+.buttons_container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.cancel_btn {
+  color: #4c4cff; /* Акцентный фиолетово-синий цвет для отмены */
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.cancel_btn:hover {
+  opacity: 0.8;
+}

@@ -7,7 +7,25 @@ import {
   clearTokens,
   getUserRequest,
   registerUserRequest,
+  updateUserRequest,
 } from '@/utils/burger-api';
+
+// Асинхронный экшен для обновления данных пользователя
+export const updateUser = createAsyncThunk(
+  'auth/updateUser',
+  async (form, { rejectWithValue }) => {
+    try {
+      const data = await updateUserRequest(form);
+      if (!data.success) {
+        return rejectWithValue(data);
+      }
+      // Возвращаем обновленный объект пользователя { email, name }
+      return data.user;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Ошибка обновления данных');
+    }
+  }
+);
 
 // Асинхронный экшен для регистрации нового пользователя
 export const registerUser = createAsyncThunk(
@@ -153,6 +171,19 @@ export const authSlice = createSlice({
         state.user = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // updateUser
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
