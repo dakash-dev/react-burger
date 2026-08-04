@@ -59,39 +59,42 @@ export const ProfilePage = () => {
   return (
     <div className={styles.wrapper}>
       {/* ЛЕВЫЙ САЙДБАР С ПОЛНЫМ НАБОРОМ ССЫЛОК И КЛАССОВ */}
-      <nav className={`${styles.sidebar} mr-15`}>
-        <NavLink
-          to="/profile"
-          end
-          className={({ isActive }) =>
-            `${styles.tab_link} text text_type_main-medium ${
-              isActive ? styles.tab_active : 'text_color_inactive'
-            }`
-          }
+      <div>
+        <nav className={styles.sidebar}>
+          <NavLink
+            to="/profile"
+            end
+            className={({ isActive }) =>
+              `${styles.tab_link} text text_type_main-medium ${
+                isActive ? styles.tab_active : 'text_color_inactive'
+              }`
+            }
+          >
+            Профиль
+          </NavLink>
+          <NavLink
+            to="/profile/orders"
+            className={({ isActive }) =>
+              `${styles.tab_link} text text_type_main-medium ${
+                isActive ? styles.tab_active : 'text_color_inactive'
+              }`
+            }
+          >
+            История заказов
+          </NavLink>
+          <button
+            onClick={() => dispatch(logoutUser())}
+            className={`${styles.logout_btn} text text_type_main-medium text_color_inactive`}
+          >
+            Выход
+          </button>
+        </nav>
+        <p
+          className={`${styles.info_text} text text_type_main-default text_color_inactive`}
         >
-          Профиль
-        </NavLink>
-        <NavLink
-          to="/profile/orders"
-          className={({ isActive }) =>
-            `${styles.tab_link} text text_type_main-medium mt-4 ${
-              isActive ? styles.tab_active : 'text_color_inactive'
-            }`
-          }
-        >
-          История заказов
-        </NavLink>
-
-        <button
-          onClick={() => dispatch(logoutUser())}
-          className={`${styles.logout_btn} text text_type_main-medium text_color_inactive mt-4`}
-        >
-          Выход
-        </button>
-        <p className="text text_type_main-default text_color_inactive mt-20">
           В этом разделе вы можете изменить свои персональные данные
         </p>
-      </nav>
+      </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <Input
