@@ -97,6 +97,12 @@ const initialState = {
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
+  selectors: {
+    selectUser: (state) => state.user,
+    selectIsAuthChecked: (state) => state.isAuthChecked,
+    selectAuthLoading: (state) => state.isLoading,
+    selectAuthError: (state) => state.error,
+  },
   reducers: {
     // Сеттер для ручной установки флага проверки авторизации
     setAuthChecked: (state, action) => {
@@ -154,4 +160,6 @@ export const authSlice = createSlice({
 });
 
 export const { setAuthChecked, setUser } = authSlice.actions;
+export const { selectUser, selectIsAuthChecked, selectAuthLoading, selectAuthError } =
+  authSlice.selectors;
 export default authSlice.reducer;
