@@ -1,8 +1,6 @@
 .wrapper {
   display: flex;
   justify-content: flex-start;
-
-  /* padding-left: 40px; */
   box-sizing: border-box;
   width: 100%;
   max-width: 1200px;
@@ -11,18 +9,16 @@
 
 .sidebar {
   display: flex;
-
-  /* height: 192px; */
   flex-shrink: 0;
   flex-direction: column;
-  width: 320px; /* Фиксированная ширина по макету */
+  width: 320px;
 }
 
 .tab_link {
   display: block;
   display: flex;
   align-items: center;
-  height: 64px; /* Ровно 3 пункта по 64px дадут общую высоту 192px */
+  height: 64px;
   text-decoration: none;
   transition: color 0.2s ease-in-out;
 }
@@ -34,7 +30,7 @@
 .logout_btn {
   display: flex;
   align-items: center;
-  height: 64px; /* Высота кнопки выхода */
+  height: 64px;
   padding: 0;
   font-family: inherit;
   text-align: left;
@@ -49,38 +45,9 @@
   color: #f2f2f3 !important;
 }
 
-/* Описание выносим из контейнера навигации, чтобы не ломать высоту 192px */
-
 .info_text {
   width: 320px;
   margin-top: 80px;
   line-height: 1.5;
   opacity: 0.4;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  width: 320px;
-  margin-left: 60px; /* Отступ между сайдбаром и формой */
-}
-
-.buttons_container {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 24px;
-}
-
-.cancel_btn {
-  color: #4c4cff;
-  font-family: inherit;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.cancel_btn:hover {
-  opacity: 0.8;
 }

@@ -1,0 +1,26 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  margin-left: 60px;
+}
+
+.buttons_container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.cancel_btn {
+  color: #4c4cff;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.cancel_btn:hover {
+  opacity: 0.8;
+}

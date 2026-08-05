@@ -18,8 +18,10 @@ import {
   ResetPassword,
   IngredientPage,
   ProfilePage,
+  ProfileForm,
 } from '../../pages';
-import { checkUserAuth, selectIsAuthChecked } from '../../services/auth/slice';
+import { checkUserAuth } from '../../services/auth/actions';
+import { selectIsAuthChecked } from '../../services/auth/slice';
 
 import styles from './app.module.css';
 
@@ -79,7 +81,19 @@ export const App = () => {
           element={<OnlyUnAuth component={<ResetPassword />} />}
         />
         {/* Защищенная зона: неавторизованные уходят на /login с сохранением истории */}
-        <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />} />
+        <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />}>
+          {/* index означает, что по умолчанию на самом /profile откроется форма */}
+          <Route index element={<ProfileForm />} />
+          {/* по адресу /profile/orders откроется заглушка истории заказов по ТЗ */}
+          <Route
+            path="orders"
+            element={
+              <div className="text text_type_main-medium ml-15 mt-10">
+                История заказов (Заглушка)
+              </div>
+            }
+          />
+        </Route>
         {/* заход по прямой ссылке (без фона) */}
         <Route path="/ingredients/:id" element={<IngredientPage />} />
       </Routes>

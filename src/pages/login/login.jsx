@@ -8,7 +8,8 @@ import { Link } from 'react-router-dom';
 
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
-import { loginUser, selectAuthLoading } from '../../services/auth/slice';
+import { loginUser } from '../../services/auth/actions';
+import { selectAuthLoading } from '../../services/auth/slice';
 
 import styles from './login.module.css';
 

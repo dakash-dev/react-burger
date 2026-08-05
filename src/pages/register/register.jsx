@@ -9,7 +9,8 @@ import { Link } from 'react-router-dom';
 
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
-import { registerUser, selectAuthLoading } from '../../services/auth/slice';
+import { registerUser } from '../../services/auth/actions';
+import { selectAuthLoading } from '../../services/auth/slice';
 
 import styles from './register.module.css';
 

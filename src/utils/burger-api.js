@@ -112,17 +112,15 @@ export const loginUserRequest = (form) => {
 };
 
 // Запрос на выход из системы (разлогин)
-export const logoutUserRequest = () => {
-  return request('/auth/logout', {
+export const logoutUserRequest = () =>
+  fetchWithRefresh('/auth/logout', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      authorization: localStorage.getItem('accessToken'), // ДОБАВЛЕНО
     },
-    body: JSON.stringify({
-      token: localStorage.getItem('refreshToken'),
-    }),
+    body: JSON.stringify({ token: localStorage.getItem('refreshToken') }),
   });
-};
 
 // Восстановление пароля — принимает объект { email: "..." }
 export const passwordResetRequest = (form) => {
