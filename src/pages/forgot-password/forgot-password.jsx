@@ -23,7 +23,7 @@ export const ForgotPassword = () => {
         if (data.success) {
           // Устанавливаем флаг, что пользователь пришел со страницы восстановления.
           localStorage.setItem('forgotPasswordVisited', 'true');
-          navigate('/reset-password');
+          navigate('/reset-password', { replace: true });
         }
       })
       .catch((err) => console.error('Ошибка восстановления пароля:', err))

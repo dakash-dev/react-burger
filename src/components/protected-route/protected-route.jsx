@@ -22,13 +22,13 @@ const Protected = ({ onlyUnAuth = false, component }) => {
   if (onlyUnAuth && user) {
     // Возвращаем его на сохраненный ранее маршрут или на главную страницу!!!!!
     const { from } = location.state || { from: { pathname: '/' } };
-    return <Navigate to={from} />;
+    return <Navigate to={from} replace />;
   }
 
   // Это маршрут только для АВТОРИЗОВАННЫХ (Profile), но юэверя НЕТ в системе!
   if (!onlyUnAuth && !user) {
     // Отправляем на логин, и сохраняем в state  URL для будущего возврата...
-    return <Navigate to="/login" state={{ from: location }} />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Если все проверки ок — рендерим защищаемую страницу.

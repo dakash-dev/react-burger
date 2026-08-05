@@ -45,7 +45,7 @@ export const ResetPassword = () => {
         if (data.success) {
           // В случае успеха очищаем флаг и отправляем на логин по ТЗ
           localStorage.removeItem('forgotPasswordVisited');
-          navigate('/login');
+          navigate('/login', { replace: true });
         }
       })
       .catch((err) => console.error('Ошибка сброса пароля:', err))
