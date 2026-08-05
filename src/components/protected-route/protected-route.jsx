@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { selectIsAuthChecked, selectUser } from '../../services/auth/slice';
+import Preloader from '../preloader/preloader';
 
 const Protected = ({ onlyUnAuth = false, component }) => {
   // Достаем данные пользователя и статус проверки токена.
@@ -10,8 +11,11 @@ const Protected = ({ onlyUnAuth = false, component }) => {
   const location = useLocation();
 
   // Если проверка токена не проходит — ничего не рендерим
+  // Preloader работает, чтобы во время ожидания ответа от
+  // сервера у авторизированного пользователя не показывалась
+  // страница логина.
   if (!isAuthChecked) {
-    return null;
+    return <Preloader />;
   }
 
   // Это маршрут только для НЕавторизованных (Login, Register, ForgotPassword), но юзер УЖЕ вошел!
