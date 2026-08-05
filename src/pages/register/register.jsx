@@ -40,7 +40,7 @@ export const Register = () => {
           onChange={handleChange}
           value={values.name}
           name="name"
-          error={!errors.name && values.name !== ''}
+          error={Boolean(errors.name)}
           errorText="Укажите корректное имя"
           size="default"
           extraClass="mb-6"
