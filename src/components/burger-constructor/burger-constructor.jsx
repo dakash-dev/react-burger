@@ -6,7 +6,9 @@ import {
 } from '@krgaa/react-developer-burger-ui-components';
 import { useDrop, useDrag } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 
+import { selectUser } from '@/services/auth/slice';
 import {
   addIngredient,
   removeIngredient,
@@ -19,7 +21,10 @@ import styles from './burger-constructor.module.css';
 
 export const BurgerConstructor = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  const user = useSelector(selectUser);
   const { bun, ingredients: constructorIngredients } = useSelector(
     (state) => state.burgerConstructor
   );
@@ -35,7 +40,19 @@ export const BurgerConstructor = () => {
     },
   });
 
-  console.log('Данные конструктора из Redux:', { bun, constructorIngredients });
+  const handleOrderSubmit = () => {
+    // Если пользователь НЕ авторизован — блокируем запрос и уводим на логин.
+    if (!user) {
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    // Если авторизован
+    // Аргументы не передаем (_),
+    // так как санка сама соберет нужные ID из стора через getState()
+    dispatch(checkoutOrder());
+  };
+
+  // console.log('Данные конструктора из Redux:', { bun, constructorIngredients });
 
   return (
     <section ref={dropTargetRef} className={styles.burger_constructor}>
@@ -114,7 +131,7 @@ export const BurgerConstructor = () => {
               htmlType="button"
               type="primary"
               size="large"
-              onClick={() => dispatch(checkoutOrder())}
+              onClick={handleOrderSubmit}
               disabled={!bun} // Кнопка заблокирована, до перетаскивания инградиента.
             >
               Оформить заказ
