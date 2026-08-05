@@ -14,6 +14,7 @@ import styles from './reset-password.module.css';
 export const ResetPassword = () => {
   const navigate = useNavigate();
   const [isAllowed, setIsAllowed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Проверка флага при монтировании страницы.
   useEffect(() => {
@@ -35,7 +36,8 @@ export const ResetPassword = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('Данные перед отправкой на сервер:', values);
+    setIsLoading(true);
+    // console.log('Данные перед отправкой на сервер:', values);
 
     // Вызываем метод сетевого слоя и передаем объект с данными формы
     passwordResetConfirmRequest(values)
@@ -46,7 +48,8 @@ export const ResetPassword = () => {
           navigate('/login');
         }
       })
-      .catch((err) => console.error('Ошибка сброса пароля:', err));
+      .catch((err) => console.error('Ошибка сброса пароля:', err))
+      .finally(() => setIsLoading(false));
   };
 
   // Если зашли напрямую, прерываем рендер, чтобы страница не падала в "белый экран"
@@ -64,6 +67,7 @@ export const ResetPassword = () => {
           value={values.password}
           name="password"
           placeholder="Введите новый пароль"
+          disabled={isLoading}
           extraClass="mb-6"
         />
 
@@ -74,11 +78,17 @@ export const ResetPassword = () => {
           value={values.token}
           name="token"
           size="default"
+          disabled={isLoading}
           extraClass="mb-6"
         />
 
-        <Button htmlType="submit" type="primary" size="medium" disabled={!isValid}>
-          Сохранить
+        <Button
+          htmlType="submit"
+          type="primary"
+          size="medium"
+          disabled={!isValid || isLoading}
+        >
+          {isLoading ? 'Сохранение...' : 'Сохранить'}
         </Button>
       </form>
 

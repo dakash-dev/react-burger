@@ -1,4 +1,5 @@
 import { Button, EmailInput } from '@krgaa/react-developer-burger-ui-components';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { passwordResetRequest } from '@/utils/burger-api';
@@ -8,12 +9,14 @@ import styles from './forgot-password.module.css';
 
 export const ForgotPassword = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const { values, handleChange, isValid } = useFormWithValidation({
     email: '',
   });
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     passwordResetRequest(values)
       .then((data) => {
@@ -23,7 +26,8 @@ export const ForgotPassword = () => {
           navigate('/reset-password');
         }
       })
-      .catch((err) => console.error('Ошибка восстановления пароля:', err));
+      .catch((err) => console.error('Ошибка восстановления пароля:', err))
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -37,11 +41,17 @@ export const ForgotPassword = () => {
           name="email"
           placeholder="Укажите e-mail"
           isIcon={false}
+          disabled={isLoading}
           extraClass="mb-6"
         />
 
-        <Button htmlType="submit" type="primary" size="medium" disabled={!isValid}>
-          Восстановить
+        <Button
+          htmlType="submit"
+          type="primary"
+          size="medium"
+          disabled={!isValid || isLoading}
+        >
+          {isLoading ? 'Восстановление...' : 'Восстановить'}
         </Button>
       </form>
 
