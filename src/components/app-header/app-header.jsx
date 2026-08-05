@@ -4,7 +4,7 @@ import {
   ProfileIcon,
   Logo,
 } from '@krgaa/react-developer-burger-ui-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 import styles from './app-header.module.css';
 
@@ -40,9 +40,9 @@ export const AppHeader = () => {
             )}
           </NavLink>
         </div>
-        <div className={styles.logo}>
+        <Link to="/" className={styles.logo}>
           <Logo />
-        </div>
+        </Link>
         <NavLink
           to="/profile"
           className={({ isActive }) =>
