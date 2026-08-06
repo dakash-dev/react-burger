@@ -1,45 +1,44 @@
 import { useEffect, useCallback } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useDispatch, useSelector } from 'react-redux';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
-import IngredientDetails from '@/components/ingredient-details/ingredient-details';
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
-import {
-  setIngredientDetails,
-  clearIngredientDetails,
-} from '@/services/currentIngredient/slice';
 import { fetchIngredients } from '@/services/ingredients/action';
 import { clearOrder } from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
-import { BurgerConstructor } from '@components/burger-constructor/burger-constructor';
-import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredients';
+import { OnlyAuth, OnlyUnAuth } from '@components/protected-route/protected-route';
+
+import {
+  Home,
+  Register,
+  Login,
+  ForgotPassword,
+  ResetPassword,
+  IngredientPage,
+  ProfilePage,
+  ProfileForm,
+} from '../../pages';
+import { checkUserAuth } from '../../services/auth/actions';
+import { selectIsAuthChecked } from '../../services/auth/slice';
 
 import styles from './app.module.css';
 
-// Конструкция получена по документации от ИИ.
 export const App = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Фоновая локация.
+  const backgroundLocation = location.state && location.state.background;
   const dispatch = useDispatch();
-  const { isLoading, error } = useSelector((state) => state.ingredients);
 
-  // Состояние для открытого ингредиента
-  const { ingredient } = useSelector((state) => state.currentIngredient);
+  const { isLoading: isIngredientsLoading, error } = useSelector(
+    (state) => state.ingredients
+  );
+  const isAuthChecked = useSelector(selectIsAuthChecked);
 
   // Достаем состояние заказа из стора
   const { orderNumber, isLoading: isOrderLoading } = useSelector((state) => state.order);
-
-  const handleIngredientClick = useCallback(
-    (ingredient) => {
-      dispatch(setIngredientDetails(ingredient));
-    },
-    [dispatch]
-  );
-
-  const handleIngredientClose = useCallback(() => {
-    dispatch(clearIngredientDetails());
-  }, [dispatch]);
 
   const handleOrderClose = useCallback(() => {
     dispatch(clearOrder());
@@ -47,10 +46,11 @@ export const App = () => {
 
   useEffect(() => {
     dispatch(fetchIngredients());
+    dispatch(checkUserAuth());
   }, [dispatch]);
 
   // 1. Если данные еще загружаются — показываем прелоадер и выходим
-  if (isLoading) {
+  if (isIngredientsLoading || !isAuthChecked) {
     return <Preloader />;
   }
 
@@ -67,20 +67,51 @@ export const App = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
-        Соберите бургер
-      </h1>
-      <DndProvider backend={HTML5Backend}>
-        <main className={`${styles.main} pl-5 pr-5`}>
-          <BurgerIngredients onIngredientClick={handleIngredientClick} />
-          <BurgerConstructor />
-        </main>
-      </DndProvider>
-      {ingredient && (
-        <Modal title="Детали ингредиента" onClose={handleIngredientClose}>
-          <IngredientDetails item={ingredient} />
-        </Modal>
+      <Routes location={backgroundLocation || location}>
+        <Route path="/" element={<Home />} />
+        {/* Гостевые зоны: авторизованые уходят на главную или назад */}
+        <Route path="/register" element={<OnlyUnAuth component={<Register />} />} />
+        <Route path="/login" element={<OnlyUnAuth component={<Login />} />} />
+        <Route
+          path="/forgot-password"
+          element={<OnlyUnAuth component={<ForgotPassword />} />}
+        />
+        <Route
+          path="/reset-password"
+          element={<OnlyUnAuth component={<ResetPassword />} />}
+        />
+        {/* Защищенная зона: неавторизованные уходят на /login с сохранением истории */}
+        <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />}>
+          {/* index означает, что по умолчанию на самом /profile откроется форма */}
+          <Route index element={<ProfileForm />} />
+          {/* по адресу /profile/orders откроется заглушка истории заказов по ТЗ */}
+          <Route
+            path="orders"
+            element={
+              <div className="text text_type_main-medium ml-15 mt-10">
+                История заказов (Заглушка)
+              </div>
+            }
+          />
+        </Route>
+        {/* заход по прямой ссылке (без фона) */}
+        <Route path="/ingredients/:id" element={<IngredientPage />} />
+      </Routes>
+
+      {backgroundLocation && (
+        <Routes>
+          <Route
+            path="/ingredients/:id"
+            element={
+              <Modal title="Детали ингредиента" onClose={() => navigate('/')}>
+                {/* Используем твою же страницу внутри модалки! Она сама вытащит ID из урла */}
+                <IngredientPage />
+              </Modal>
+            }
+          />
+        </Routes>
       )}
+
       {(orderNumber || isOrderLoading) && (
         <Modal onClose={handleOrderClose}>
           <OrderDetails />

@@ -8,31 +8,6 @@
   background-color: var(--background-alt);
 }
 
-.title {
-  width: 100%;
-  margin: 0;
-
-  /* max-width: 1260px; */
-
-  /* margin-right: auto;
-  margin-left: auto; */
-
-  /* border: 3px, solid;
-  border-color: red; */
-}
-
-.main {
-  display: flex;
-  justify-content: space-between;
-  width: 1240px;
-  height: 100%;
-  margin: 0 auto;
-  overflow: hidden;
-
-  /* border: 3px, solid;
-  border-color: red; */
-}
-
 .errorContainer {
   display: flex;
   justify-content: center;
