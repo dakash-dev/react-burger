@@ -181,10 +181,10 @@ export default defineConfig([
         'error',
         {
           args: 'after-used',
-          argsIgnorePattern: '^*',
-          caughtErrorsIgnorePattern: '^*',
+          argsIgnorePattern: '^_[a-zA-Z0-9_]*$',
+          caughtErrorsIgnorePattern: '^_[a-zA-Z0-9_]*$',
           vars: 'all',
-          varsIgnorePattern: '^_',
+          varsIgnorePattern: '^_[a-zA-Z0-9_]*$',
         },
       ],
     },

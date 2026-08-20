@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-import { createOrderRequest } from '@utils/burger-api';
+import { createOrderRequest } from '@/utils/burger-api';
 
 export const checkoutOrder = createAsyncThunk(
   'order/checkout',

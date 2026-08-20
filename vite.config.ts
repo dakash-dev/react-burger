@@ -10,7 +10,10 @@ export default defineConfig({
   plugins: [
     checker({
       typescript: true,
-      eslint: { lintCommand: 'eslint "src/**/*.{ts,tsx,js,jsx}"' }
+      eslint: {
+        lintCommand: 'eslint "src/**/*.{ts,tsx,js,jsx}"',
+        useFlatConfig: true,
+      },
     }),
     react(),
     readableClassnames(),

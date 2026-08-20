@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-import { getIngredientsRequest } from '@utils/burger-api';
+import { getIngredientsRequest } from '@/utils/burger-api';
 
 // Создаем асинхронный экшен для получения ингредиентов.
 export const fetchIngredients = createAsyncThunk(
