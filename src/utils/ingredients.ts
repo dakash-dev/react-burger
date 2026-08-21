@@ -1,4 +1,6 @@
-export const ingredients = [
+import type { TIngredient } from '@/utils/burger-api';
+
+export const ingredients: Array<TIngredient> = [
   {
     _id: '60666c42cc7b410027a1a9b1',
     name: 'Краторная булка N-200i',

@@ -3,17 +3,25 @@ const PWD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_+{}[\]:;<>,.?~\\/-]{6,}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const NAME_REGEX = /^[A-Za-zА-Яа-яЁё0-9\s-]{2,}$/;
 
-export const validators = {
+type TValidationRule = {
+  // eslint-disable-next-line no-unused-vars
+  validator: (value: string) => boolean;
+  message: string;
+};
+
+type TValidators = Record<string, TValidationRule>;
+
+export const validators: TValidators = {
   name: {
-    validator: (value) => !!value && NAME_REGEX.test(value.trim()),
+    validator: (value: string): boolean => !!value && NAME_REGEX.test(value.trim()),
     message: 'Укажите корректное имя.',
   },
   email: {
-    validator: (value) => !!value && EMAIL_REGEX.test(value.trim()),
+    validator: (value: string): boolean => !!value && EMAIL_REGEX.test(value.trim()),
     message: 'Укажите корректный email.',
   },
   password: {
-    validator: (value) => !!value && PWD_REGEX.test(value.trim()),
+    validator: (value: string): boolean => !!value && PWD_REGEX.test(value.trim()),
     message: 'Укажите пароль посложнее.',
   },
 };
