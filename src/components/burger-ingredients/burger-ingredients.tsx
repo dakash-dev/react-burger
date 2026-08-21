@@ -1,26 +1,43 @@
-import { Tab, Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
-import React from 'react';
+import { Counter, CurrencyIcon, Tab } from '@krgaa/react-developer-burger-ui-components';
+import { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
-import { useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { selectIngredientCount } from '@/services/burgerConstructor/slice';
+import { useAppSelector } from '@/services/hooks';
+import { selectIngredients } from '@/services/ingredients/slice';
+
+import type { TIngredient } from '@/utils/burger-api';
+import type { FC, ReactElement } from 'react';
 
 import styles from './burger-ingredients.module.css';
 
-export const BurgerIngredients = () => {
-  const { ingredients } = useSelector((state) => state.ingredients);
+type TIngredientCardProps = {
+  model: TIngredient;
+};
+
+export const BurgerIngredients = (): ReactElement => {
+  const ingredients = useAppSelector(selectIngredients);
   console.log(ingredients);
 
   // активируем ссылки динамически.
-  const [current, setCurrent] = React.useState('bun');
+  const [current, setCurrent] = useState<string>('bun');
 
-  const containerRef = React.useRef(null);
-  const bunsRef = React.useRef(null);
-  const mainsRef = React.useRef(null);
-  const saucesRef = React.useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bunsRef = useRef<HTMLHeadingElement>(null);
+  const mainsRef = useRef<HTMLHeadingElement>(null);
+  const saucesRef = useRef<HTMLHeadingElement>(null);
 
-  const handleScroll = () => {
+  const handleScroll = (): void => {
+    // Защитная проверка: если хоть один реф равен null, сразу выходим&
+    if (
+      !containerRef.current ||
+      !bunsRef.current ||
+      !mainsRef.current ||
+      !saucesRef.current
+    ) {
+      return;
+    }
     const containerTop = containerRef.current.getBoundingClientRect().top;
     const bunsDiff = Math.abs(
       bunsRef.current.getBoundingClientRect().top - containerTop
@@ -109,10 +126,10 @@ export const BurgerIngredients = () => {
 };
 
 // Вспомогательный компонент для одной карточки ингредиента (ИИ сэнкс)
-const IngredientCard = ({ model }) => {
+const IngredientCard: FC<TIngredientCardProps> = ({ model }): ReactElement => {
   const navigate = useNavigate();
   const location = useLocation();
-  const count = useSelector(selectIngredientCount(model._id));
+  const count = useAppSelector((state) => selectIngredientCount(state)(model._id));
 
   const [{ isDragging }, dragRef] = useDrag({
     type: 'ingredient',
@@ -127,7 +144,9 @@ const IngredientCard = ({ model }) => {
 
   return (
     <li
-      ref={dragRef}
+      ref={(node) => {
+        dragRef(node);
+      }}
       style={opacityStyle}
       className={styles.card}
       onClick={() =>

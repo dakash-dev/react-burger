@@ -2,7 +2,13 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { checkoutOrder } from './action';
 
-const initialState = {
+type TOrderState = {
+  orderNumber: number | null;
+  isLoading: boolean;
+  error: string | null;
+};
+
+const initialState: TOrderState = {
   orderNumber: null,
   isLoading: false,
   error: null,
@@ -11,9 +17,14 @@ const initialState = {
 export const orderSlice = createSlice({
   name: 'order',
   initialState,
+  selectors: {
+    selectOrderNumber: (state: TOrderState): number | null => state.orderNumber,
+    selectOrderLoading: (state: TOrderState): boolean => state.isLoading,
+    selectOrderError: (state: TOrderState): string | null => state.error,
+  },
   reducers: {
     // Экшен для сброса номера заказа при закрытии модалки..
-    clearOrder: (state) => {
+    clearOrder: (state: TOrderState) => {
       state.orderNumber = null;
     },
   },
@@ -36,3 +47,7 @@ export const orderSlice = createSlice({
 });
 
 export const { clearOrder } = orderSlice.actions;
+// Экспортируем селекторы&
+export const { selectOrderNumber, selectOrderLoading, selectOrderError } =
+  orderSlice.selectors;
+export default orderSlice.reducer;
