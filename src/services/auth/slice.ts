@@ -2,7 +2,17 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { registerUser, loginUser, logoutUser, updateUser } from './actions';
 
-const initialState = {
+import type { TUser } from '@/utils/burger-api';
+import type { PayloadAction } from '@reduxjs/toolkit';
+
+type TAuthState = {
+  user: TUser | null;
+  isAuthChecked: boolean;
+  isLoading: boolean;
+  error: string | unknown | null;
+};
+
+const initialState: TAuthState = {
   user: null,
   isAuthChecked: false,
   isLoading: false,
@@ -13,16 +23,16 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   selectors: {
-    selectUser: (state) => state.user,
-    selectIsAuthChecked: (state) => state.isAuthChecked,
-    selectAuthLoading: (state) => state.isLoading,
-    selectAuthError: (state) => state.error,
+    selectUser: (state: TAuthState): TUser | null => state.user,
+    selectIsAuthChecked: (state: TAuthState): boolean => state.isAuthChecked,
+    selectAuthLoading: (state: TAuthState): boolean => state.isLoading,
+    selectAuthError: (state: TAuthState): string | unknown | null => state.error,
   },
   reducers: {
-    setAuthChecked: (state, action) => {
+    setAuthChecked: (state: TAuthState, action: PayloadAction<boolean>): void => {
       state.isAuthChecked = action.payload;
     },
-    setUser: (state, action) => {
+    setUser: (state: TAuthState, action: PayloadAction<TUser | null>): void => {
       state.user = action.payload;
     },
   },
