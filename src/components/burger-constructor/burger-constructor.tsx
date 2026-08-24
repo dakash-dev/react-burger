@@ -5,7 +5,6 @@ import {
   DragIcon,
 } from '@krgaa/react-developer-burger-ui-components';
 import { useDrop, useDrag } from 'react-dnd';
-import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { selectUser } from '@/services/auth/slice';
@@ -13,34 +12,54 @@ import {
   addIngredient,
   removeIngredient,
   moveIngredient,
+  selectConstructorBun,
+  selectConstructorIngredients,
   selectTotalPrice,
 } from '@/services/burgerConstructor/slice';
+import { useAppDispatch, useAppSelector } from '@/services/hooks';
 import { checkoutOrder } from '@/services/order/action';
+
+import type { TConstructorIngredient } from '@/services/burgerConstructor/slice';
+import type { TIngredient } from '@/utils/burger-api';
+import type { FC, ReactElement } from 'react';
 
 import styles from './burger-constructor.module.css';
 
-export const BurgerConstructor = () => {
-  const dispatch = useDispatch();
+type TConstructorIngredientProps = {
+  id: string;
+  index: number;
+  text: string;
+  price: number;
+  thumbnail: string;
+  handleClose: () => void;
+  extraClass?: string;
+};
+
+type TDragItem = {
+  id: string;
+  index: number;
+};
+
+export const BurgerConstructor = (): ReactElement => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = useSelector(selectUser);
-  const { bun, ingredients: constructorIngredients } = useSelector(
-    (state) => state.burgerConstructor
-  );
-
-  const totalPrice = useSelector(selectTotalPrice);
+  const user = useAppSelector(selectUser);
+  const bun = useAppSelector(selectConstructorBun);
+  const constructorIngredients = useAppSelector(selectConstructorIngredients);
+  const totalPrice = useAppSelector(selectTotalPrice);
 
   // accept: 'ingredient' — ловим только те элементы, у которых тип совпадает с useDrag карточки.
   // drop: (item) — в момент отпускания мыши берем прилетевший ингредиент и бросаем его в Redux.
-  const [, dropTargetRef] = useDrop({
+  const [, dropTargetRef] = useDrop<TIngredient, void, unknown>({
     accept: 'ingredient',
-    drop: (item) => {
+    drop: (item: TIngredient): void => {
       dispatch(addIngredient(item));
     },
   });
 
-  const handleOrderSubmit = () => {
+  const handleOrderSubmit = (): void => {
     // Если пользователь НЕ авторизован — блокируем запрос и уводим на логин.
     if (!user) {
       navigate('/login', { state: { from: location } });
@@ -55,7 +74,12 @@ export const BurgerConstructor = () => {
   // console.log('Данные конструктора из Redux:', { bun, constructorIngredients });
 
   return (
-    <section ref={dropTargetRef} className={styles.burger_constructor}>
+    <section
+      ref={(node: HTMLElement | null): void => {
+        if (node) dropTargetRef(node);
+      }}
+      className={styles.burger_constructor}
+    >
       <div className={`${styles.burger_list} pl-4`}>
         {/* Верхняя булка или заглушка */}
         {bun ? (
@@ -78,19 +102,23 @@ export const BurgerConstructor = () => {
         {/* Список начинок или заглушка */}
         {constructorIngredients.length > 0 ? (
           <ul className={`${styles.ingredients_set} custom-scroll`}>
-            {constructorIngredients.map((base, index) => (
-              <ConstructorIngredient
-                // Используем уникальный id из nanoid в качестве ключа
-                key={base.id}
-                id={base.id}
-                index={index}
-                text={base.name}
-                price={base.price}
-                thumbnail={base.image}
-                extraClass="ml-2"
-                handleClose={() => dispatch(removeIngredient(base.id))}
-              />
-            ))}
+            {constructorIngredients.map(
+              (base: TConstructorIngredient, index: number) => (
+                <ConstructorIngredient
+                  // Используем уникальный id из nanoid в качестве ключа
+                  key={base.id}
+                  id={base.id}
+                  index={index}
+                  text={base.name}
+                  price={base.price}
+                  thumbnail={base.image}
+                  extraClass="ml-2"
+                  handleClose={(): void => {
+                    dispatch(removeIngredient(base.id));
+                  }}
+                />
+              )
+            )}
           </ul>
         ) : (
           <div
@@ -144,21 +172,30 @@ export const BurgerConstructor = () => {
 };
 
 // Компонент для одной перетаскиваемой строчки начинки/соуса
-const ConstructorIngredient = ({ id, index, text, price, thumbnail, handleClose }) => {
-  const dispatch = useDispatch();
+const ConstructorIngredient: FC<TConstructorIngredientProps> = ({
+  id,
+  index,
+  text,
+  price,
+  thumbnail,
+  handleClose,
+}): ReactElement => {
+  const dispatch = useAppDispatch();
   // Настраиваем useDrag для перетаскивания внутри списка.
-  const [{ isDragging }, dragRef] = useDrag({
-    type: 'sort_ingredient',
-    item: { id, index }, // Передаем id и текущий индекс элемента в массиве
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
+  const [{ isDragging }, dragRef] = useDrag<TDragItem, unknown, { isDragging: boolean }>(
+    {
+      type: 'sort_ingredient',
+      item: { id, index }, // Передаем id и текущий индекс элемента в массиве
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+    }
+  );
 
   // Настраиваем useDrop, чтобы ловить соседние элементы при наведении
-  const [, dropRef] = useDrop({
+  const [, dropRef] = useDrop<TDragItem, void, unknown>({
     accept: 'sort_ingredient',
-    hover: (item) => {
+    hover: (item: TDragItem): void => {
       // dragIndex — индекс элемента, который мы тащим&
       const dragIndex = item.index;
       // hoverIndex — индекс элемента, над которым сейчас находится курсор
@@ -182,7 +219,11 @@ const ConstructorIngredient = ({ id, index, text, price, thumbnail, handleClose 
     // Объединяем dragRef и dropRef на одном элементе
     // чтобы он стал и перетаскиваемым, и принимающим одновременно.
     <li
-      ref={(node) => dragRef(dropRef(node))}
+      ref={(node: HTMLLIElement | null): void => {
+        if (node) {
+          dragRef(dropRef(node));
+        }
+      }}
       style={opacityStyle}
       className={styles.ingredients_base}
     >
