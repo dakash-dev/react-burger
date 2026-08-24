@@ -1,11 +1,16 @@
 import { CheckMarkIcon } from '@krgaa/react-developer-burger-ui-components';
-import { useSelector } from 'react-redux';
+
+import { useAppSelector } from '../../services/hooks';
+import { selectOrderLoading, selectOrderNumber } from '../../services/order/slice';
+
+import type { ReactElement } from 'react';
 
 import styles from './order-details.module.css';
 
-function OrderDetails() {
+function OrderDetails(): ReactElement {
   // номер заказа и флаг загрузки из ветки order.
-  const { orderNumber, isLoading } = useSelector((state) => state.order);
+  const orderNumber = useAppSelector(selectOrderNumber);
+  const isLoading = useAppSelector(selectOrderLoading);
 
   // Если запрос к серверу еще идет, выводим текст ожидания
   if (isLoading) {
