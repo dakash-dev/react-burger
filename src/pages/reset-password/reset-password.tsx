@@ -9,15 +9,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import { passwordResetConfirmRequest } from '@/utils/burger-api';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
+import type { TBaseResponse } from '@/utils/burger-api';
+import type { FormEvent, ReactElement } from 'react';
+
 import styles from './reset-password.module.css';
 
-export const ResetPassword = () => {
+export const ResetPassword = (): ReactElement | null => {
   const navigate = useNavigate();
-  const [isAllowed, setIsAllowed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAllowed, setIsAllowed] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Проверка флага при монтировании страницы.
-  useEffect(() => {
+  useEffect((): void => {
     const wasVisited = localStorage.getItem('forgotPasswordVisited');
 
     // Если флага нет — жестко уводим на forgot-password
@@ -34,22 +37,22 @@ export const ResetPassword = () => {
     token: '', // Это код из письма
   });
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     setIsLoading(true);
     // console.log('Данные перед отправкой на сервер:', values);
 
     // Вызываем метод сетевого слоя и передаем объект с данными формы
     passwordResetConfirmRequest(values)
-      .then((data) => {
+      .then((data: TBaseResponse): void => {
         if (data.success) {
           // В случае успеха очищаем флаг и отправляем на логин по ТЗ
           localStorage.removeItem('forgotPasswordVisited');
           navigate('/login', { replace: true });
         }
       })
-      .catch((err) => console.error('Ошибка сброса пароля:', err))
-      .finally(() => setIsLoading(false));
+      .catch((err: unknown): void => console.error('Ошибка сброса пароля:', err))
+      .finally((): void => setIsLoading(false));
   };
 
   // Если зашли напрямую, прерываем рендер, чтобы страница не падала в "белый экран"

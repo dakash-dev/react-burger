@@ -4,29 +4,31 @@ import {
   EmailInput,
   PasswordInput,
 } from '@krgaa/react-developer-burger-ui-components';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import { registerUser } from '../../services/auth/actions';
 import { selectAuthLoading } from '../../services/auth/slice';
+import { useAppDispatch, useAppSelector } from '../../services/hooks';
+
+import type { FormEvent, ReactElement } from 'react';
 
 import styles from './register.module.css';
 
-export const Register = () => {
-  const dispatch = useDispatch();
+export const Register = (): ReactElement => {
+  const dispatch = useAppDispatch();
   // статус загрузки для блокировки интерфейса
-  const isAuthLoading = useSelector(selectAuthLoading);
+  const isAuthLoading = useAppSelector(selectAuthLoading);
   const { values, handleChange, errors, isValid } = useFormWithValidation({
     name: '',
     email: '',
     password: '',
   });
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    dispatch(registerUser(values));
+    void dispatch(registerUser(values));
     // console.log('Данные формы регистрации:', values);
   };
 
@@ -40,7 +42,7 @@ export const Register = () => {
           onChange={handleChange}
           value={values.name}
           name="name"
-          error={Boolean(errors.name)}
+          error={errors.name}
           errorText="Укажите корректное имя"
           size="default"
           extraClass="mb-6"
