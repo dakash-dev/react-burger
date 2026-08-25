@@ -5,29 +5,32 @@ import { Link, useNavigate } from 'react-router-dom';
 import { passwordResetRequest } from '@/utils/burger-api';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
+import type { TBaseResponse } from '@/utils/burger-api';
+import type { FormEvent, ReactElement } from 'react';
+
 import styles from './forgot-password.module.css';
 
-export const ForgotPassword = () => {
+export const ForgotPassword = (): ReactElement => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { values, handleChange, isValid } = useFormWithValidation({
     email: '',
   });
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     setIsLoading(true);
 
     passwordResetRequest(values)
-      .then((data) => {
+      .then((data: TBaseResponse): void => {
         if (data.success) {
           // Устанавливаем флаг, что пользователь пришел со страницы восстановления.
           localStorage.setItem('forgotPasswordVisited', 'true');
           navigate('/reset-password', { replace: true });
         }
       })
-      .catch((err) => console.error('Ошибка восстановления пароля:', err))
-      .finally(() => setIsLoading(false));
+      .catch((err: unknown): void => console.error('Ошибка восстановления пароля:', err))
+      .finally((): void => setIsLoading(false));
   };
 
   return (
