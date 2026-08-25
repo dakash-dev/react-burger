@@ -9,6 +9,7 @@ import { selectIngredients } from '@/services/ingredients/slice';
 
 import type { TIngredient } from '@/utils/burger-api';
 import type { FC, ReactElement } from 'react';
+import type { DragSourceMonitor } from 'react-dnd';
 
 import styles from './burger-ingredients.module.css';
 
@@ -60,9 +61,15 @@ export const BurgerIngredients = (): ReactElement => {
 
   // разеляем общий массив инградиентов.
   // чтобы не запутаться - оставляем близкие названия и не сокращаем.
-  const buns = ingredients.filter((ingredient) => ingredient.type === 'bun');
-  const mains = ingredients.filter((ingredient) => ingredient.type === 'main');
-  const sauces = ingredients.filter((ingredient) => ingredient.type === 'sauce');
+  const buns = ingredients.filter(
+    (ingredient: TIngredient): boolean => ingredient.type === 'bun'
+  );
+  const mains = ingredients.filter(
+    (ingredient: TIngredient): boolean => ingredient.type === 'main'
+  );
+  const sauces = ingredients.filter(
+    (ingredient: TIngredient): boolean => ingredient.type === 'sauce'
+  );
 
   return (
     <section className={styles.burger_ingredients}>
@@ -91,9 +98,11 @@ export const BurgerIngredients = (): ReactElement => {
           </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
-            {buns.map((product) => (
-              <IngredientCard key={product._id} model={product} />
-            ))}
+            {buns.map(
+              (product: TIngredient): ReactElement => (
+                <IngredientCard key={product._id} model={product} />
+              )
+            )}
           </ul>
         </div>
         {/* Раздел Начинки. */}
@@ -103,9 +112,11 @@ export const BurgerIngredients = (): ReactElement => {
           </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
-            {mains.map((product) => (
-              <IngredientCard key={product._id} model={product} />
-            ))}
+            {mains.map(
+              (product: TIngredient): ReactElement => (
+                <IngredientCard key={product._id} model={product} />
+              )
+            )}
           </ul>
         </div>
         {/*Раздел Соусы.*/}
@@ -115,9 +126,11 @@ export const BurgerIngredients = (): ReactElement => {
           </h2>
           <ul className={styles.grid}>
             {/* Карточки */}
-            {sauces.map((product) => (
-              <IngredientCard key={product._id} model={product} />
-            ))}
+            {sauces.map(
+              (product: TIngredient): ReactElement => (
+                <IngredientCard key={product._id} model={product} />
+              )
+            )}
           </ul>
         </div>
       </div>
@@ -131,10 +144,16 @@ const IngredientCard: FC<TIngredientCardProps> = ({ model }): ReactElement => {
   const location = useLocation();
   const count = useAppSelector((state) => selectIngredientCount(state)(model._id));
 
-  const [{ isDragging }, dragRef] = useDrag({
+  const [{ isDragging }, dragRef] = useDrag<
+    TIngredient,
+    unknown,
+    { isDragging: boolean }
+  >({
     type: 'ingredient',
     item: model,
-    collect: (monitor) => ({
+    collect: (
+      monitor: DragSourceMonitor<TIngredient, unknown>
+    ): { isDragging: boolean } => ({
       isDragging: monitor.isDragging(),
     }),
   });
@@ -144,14 +163,14 @@ const IngredientCard: FC<TIngredientCardProps> = ({ model }): ReactElement => {
 
   return (
     <li
-      ref={(node) => {
+      ref={(node: HTMLElement | null): void => {
         dragRef(node);
       }}
       style={opacityStyle}
       className={styles.card}
-      onClick={() =>
-        navigate(`/ingredients/${model._id}`, { state: { background: location } })
-      }
+      onClick={(): void => {
+        navigate(`/ingredients/${model._id}`, { state: { background: location } });
+      }}
     >
       {/* Счётчик - дефолтом будет 1 - минимальное отображение. 
       0 - не отображается. */}

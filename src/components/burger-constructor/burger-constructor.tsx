@@ -22,6 +22,7 @@ import { checkoutOrder } from '@/services/order/action';
 import type { TConstructorIngredient } from '@/services/burgerConstructor/slice';
 import type { TIngredient } from '@/utils/burger-api';
 import type { FC, ReactElement } from 'react';
+import type { DragSourceMonitor } from 'react-dnd';
 
 import styles from './burger-constructor.module.css';
 
@@ -186,7 +187,9 @@ const ConstructorIngredient: FC<TConstructorIngredientProps> = ({
     {
       type: 'sort_ingredient',
       item: { id, index }, // Передаем id и текущий индекс элемента в массиве
-      collect: (monitor) => ({
+      collect: (
+        monitor: DragSourceMonitor<TDragItem, unknown>
+      ): { isDragging: boolean } => ({
         isDragging: monitor.isDragging(),
       }),
     }
@@ -221,7 +224,7 @@ const ConstructorIngredient: FC<TConstructorIngredientProps> = ({
     <li
       ref={(node: HTMLLIElement | null): void => {
         if (node) {
-          dragRef(dropRef(node));
+          void dragRef(dropRef(node));
         }
       }}
       style={opacityStyle}
