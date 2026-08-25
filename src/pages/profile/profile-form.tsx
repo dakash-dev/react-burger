@@ -5,29 +5,41 @@ import {
   Button,
 } from '@krgaa/react-developer-burger-ui-components';
 import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 
 import { updateUser } from '../../services/auth/actions';
 import { selectUser, selectAuthLoading } from '../../services/auth/slice';
+import { useAppDispatch, useAppSelector } from '../../services/hooks';
+
+import type { ChangeEvent, FormEvent, ReactElement } from 'react';
 
 import styles from './profile-form.module.css';
 
-export const ProfileForm = () => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  const isAuthLoading = useSelector(selectAuthLoading);
+type TProfileFormState = {
+  name: string;
+  email: string;
+  password: string;
+};
 
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+export const ProfileForm = (): ReactElement => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const isAuthLoading = useAppSelector(selectAuthLoading);
+
+  const [form, setForm] = useState<TProfileFormState>({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [isFormChanged, setIsFormChanged] = useState(false);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (user) {
       setForm({ name: user.name || '', email: user.email || '', password: '' });
     }
   }, [user]);
 
-  const handleInputChange = (e) => {
-    const nextForm = { ...form, [e.target.name]: e.target.value };
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const nextForm: TProfileFormState = { ...form, [e.target.name]: e.target.value };
     setForm(nextForm);
     setIsFormChanged(
       nextForm.name !== (user?.name || '') ||
@@ -36,18 +48,18 @@ export const ProfileForm = () => {
     );
   };
 
-  const handleCancel = (e) => {
+  const handleCancel = (e: FormEvent): void => {
     e.preventDefault();
     setForm({ name: user?.name || '', email: user?.email || '', password: '' });
     setIsFormChanged(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent): void => {
     e.preventDefault();
     dispatch(updateUser(form))
       .unwrap()
       .then(() => setIsFormChanged(false))
-      .catch((err) => console.error('Ошибка обновления профиля:', err));
+      .catch((err: unknown): void => console.error('Ошибка обновления профиля:', err));
   };
 
   return (

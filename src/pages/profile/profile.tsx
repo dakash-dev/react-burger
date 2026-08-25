@@ -1,12 +1,14 @@
-import { useDispatch } from 'react-redux';
 import { NavLink, Outlet } from 'react-router-dom';
 
 import { logoutUser } from '../../services/auth/actions';
+import { useAppDispatch } from '../../services/hooks';
+
+import type { ReactElement } from 'react';
 
 import styles from './profile.module.css';
 
-export const ProfilePage = () => {
-  const dispatch = useDispatch();
+export const ProfilePage = (): ReactElement => {
+  const dispatch = useAppDispatch();
 
   return (
     <div className={styles.wrapper}>
@@ -15,7 +17,7 @@ export const ProfilePage = () => {
           <NavLink
             to="/profile"
             end
-            className={({ isActive }) =>
+            className={({ isActive }: { isActive: boolean }): string =>
               `${styles.tab_link} text text_type_main-medium ${
                 isActive ? styles.tab_active : 'text_color_inactive'
               }`
@@ -25,7 +27,7 @@ export const ProfilePage = () => {
           </NavLink>
           <NavLink
             to="/profile/orders"
-            className={({ isActive }) =>
+            className={({ isActive }: { isActive: boolean }): string =>
               `${styles.tab_link} text text_type_main-medium ${
                 isActive ? styles.tab_active : 'text_color_inactive'
               }`
@@ -34,7 +36,9 @@ export const ProfilePage = () => {
             История заказов
           </NavLink>
           <button
-            onClick={() => dispatch(logoutUser())}
+            onClick={(): void => {
+              dispatch(logoutUser());
+            }}
             className={`${styles.logout_btn} text text_type_main-medium text_color_inactive`}
           >
             Выход
