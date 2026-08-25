@@ -3,27 +3,29 @@ import {
   EmailInput,
   PasswordInput,
 } from '@krgaa/react-developer-burger-ui-components';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import { loginUser } from '../../services/auth/actions';
 import { selectAuthLoading } from '../../services/auth/slice';
+import { useAppDispatch, useAppSelector } from '../../services/hooks';
+
+import type { FormEvent, ReactElement } from 'react';
 
 import styles from './login.module.css';
 
-export const Login = () => {
-  const dispatch = useDispatch();
-  const isAuthLoading = useSelector(selectAuthLoading);
+export const Login = (): ReactElement => {
+  const dispatch = useAppDispatch();
+  const isAuthLoading = useAppSelector(selectAuthLoading);
   const { values, handleChange, isValid } = useFormWithValidation({
     email: '',
     password: '',
   });
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    dispatch(loginUser(values));
+    void dispatch(loginUser(values));
     // console.log('Данные формы авторизации:', values);
   };
 
