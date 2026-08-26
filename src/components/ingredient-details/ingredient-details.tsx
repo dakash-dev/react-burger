@@ -1,6 +1,13 @@
+import type { TIngredient } from '@/utils/burger-api';
+import type { ReactElement } from 'react';
+
 import styles from './ingredient-details.module.css';
 
-function IngredientDetails({ item }) {
+type TIngredientDetailsProps = {
+  item: TIngredient;
+};
+
+function IngredientDetails({ item }: TIngredientDetailsProps): ReactElement | null {
   if (!item) return null; // Защита от undefined при первой загрузке
 
   return (
