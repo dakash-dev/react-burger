@@ -1,12 +1,19 @@
 import { useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
 import Preloader from '@/components/preloader/preloader';
 import { fetchIngredients } from '@/services/ingredients/action';
-import { clearOrder } from '@/services/order/slice';
+import {
+  selectIngredientsLoading,
+  selectIngredientsError,
+} from '@/services/ingredients/slice';
+import {
+  clearOrder,
+  selectOrderNumber,
+  selectOrderLoading,
+} from '@/services/order/slice';
 import { AppHeader } from '@components/app-header/app-header';
 import { OnlyAuth, OnlyUnAuth } from '@components/protected-route/protected-route';
 
@@ -22,31 +29,36 @@ import {
 } from '../../pages';
 import { checkUserAuth } from '../../services/auth/actions';
 import { selectIsAuthChecked } from '../../services/auth/slice';
+import { useAppDispatch, useAppSelector } from '../../services/hooks';
+
+import type { ReactElement } from 'react';
+import type { Location } from 'react-router-dom';
 
 import styles from './app.module.css';
 
-export const App = () => {
-  const location = useLocation();
+type TLocationState = {
+  background?: Location;
+};
+
+export const App = (): ReactElement => {
+  const location = useLocation() as Location & { state: TLocationState | null };
   const navigate = useNavigate();
   // Фоновая локация.
-  const backgroundLocation = location.state && location.state.background;
-  const dispatch = useDispatch();
+  const backgroundLocation = location.state?.background;
+  const dispatch = useAppDispatch();
+  const isIngredientsLoading = useAppSelector(selectIngredientsLoading);
+  const error = useAppSelector(selectIngredientsError);
+  const isAuthChecked = useAppSelector(selectIsAuthChecked);
+  const orderNumber = useAppSelector(selectOrderNumber);
+  const isOrderLoading = useAppSelector(selectOrderLoading);
 
-  const { isLoading: isIngredientsLoading, error } = useSelector(
-    (state) => state.ingredients
-  );
-  const isAuthChecked = useSelector(selectIsAuthChecked);
-
-  // Достаем состояние заказа из стора
-  const { orderNumber, isLoading: isOrderLoading } = useSelector((state) => state.order);
-
-  const handleOrderClose = useCallback(() => {
+  const handleOrderClose = useCallback((): void => {
     dispatch(clearOrder());
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(fetchIngredients());
-    dispatch(checkUserAuth());
+  useEffect((): void => {
+    void dispatch(fetchIngredients());
+    void dispatch(checkUserAuth());
   }, [dispatch]);
 
   // 1. Если данные еще загружаются — показываем прелоадер и выходим
@@ -103,7 +115,12 @@ export const App = () => {
           <Route
             path="/ingredients/:id"
             element={
-              <Modal title="Детали ингредиента" onClose={() => navigate('/')}>
+              <Modal
+                title="Детали ингредиента"
+                onClose={(): void => {
+                  navigate('/');
+                }}
+              >
                 {/* Используем твою же страницу внутри модалки! Она сама вытащит ID из урла */}
                 <IngredientPage />
               </Modal>
