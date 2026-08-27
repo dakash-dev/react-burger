@@ -8,7 +8,10 @@ import { store } from '@services/store';
 
 import './index.css';
 
-createRoot(document.getElementById('root')).render(
+// Добавлено утверждение типа 'as HTMLElement' для предотвращения ошибки strictNullChecks.
+const rootElement = document.getElementById('root') as HTMLElement;
+
+createRoot(rootElement).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
