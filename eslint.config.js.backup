@@ -1,5 +1,5 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
+
 import js from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import cssModulesPlugin from 'eslint-plugin-css-modules';
@@ -12,10 +12,12 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-// Вычисление резервного пути (Fallback) для старых версий Node.js
+import { fileURLToPath } from 'url';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Общие настройки для всех файлов
 export default defineConfig([
-  // 1. Глобальные исключения для линтера
   {
     ignores: [
       '*.config.*',
@@ -27,23 +29,25 @@ export default defineConfig([
       'storybook-static',
     ],
   },
-  // 2. Базовые глобальные пресеты плагинов
   js.configs.recommended,
+  tseslint.configs.recommended,
+  tseslint.configs.stylistic,
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
   react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
   reactHooks.configs['recommended-latest'],
-  // 3. Общие правила для ВСЕХ файлов проекта (.js, .jsx, .ts, .tsx)
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      sourceType: 'module',
       globals: {
         ...globals.browser,
         ...globals.node,
       },
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+      sourceType: 'module',
     },
     plugins: {
       'css-modules': cssModulesPlugin,
@@ -56,12 +60,6 @@ export default defineConfig([
       'import/order': 'off',
       'css-modules/no-undef-class': 'error',
       'css-modules/no-unused-class': 'warn',
-      'react/jsx-uses-react': 'off',
-      'react/prop-types': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-      'unused-imports/no-unused-imports': 'error',
-      // Настройка сортировки импортов (Perfectionist)
       'perfectionist/sort-imports': [
         'error',
         {
@@ -72,13 +70,9 @@ export default defineConfig([
             'value-external',
             'value-internal',
             ['value-parent', 'value-sibling'],
-            [
-              'type-import',
-              'type-internal',
-              'type-parent',
-              'type-sibling',
-              'type-index',
-            ],
+            'type-import',
+            'type-internal',
+            ['type-parent', 'type-sibling', 'type-index'],
             'ts-equals-import',
             'side-effect-style',
             'style',
@@ -103,6 +97,9 @@ export default defineConfig([
           newlinesBetween: 'always',
         },
       ],
+      'react/jsx-uses-react': 'off',
+      'react/prop-types': 'off',
+      'react-hooks/exhaustive-deps': 'off',
     },
     settings: {
       'css-modules': {
@@ -115,27 +112,38 @@ export default defineConfig([
       react: {
         version: 'detect',
       },
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+      },
     },
   },
-  // 4. Правила, специфичные ТОЛЬКО для старого JavaScript-кода (.js, .jsx)
+  // Конфигурация для JavaScript файлов (.js, .jsx)
   {
     files: ['**/*.{js,jsx}'],
     rules: {
       'no-unused-vars': 'off',
-      'import/no-unresolved': 'off', // ГАРАНТИРОВАННО ОТКЛЮЧАЕМ ДЛЯ JS
-      'import/no-unused-modules': 'off', // ГАРАНТИРОВАННО ОТКЛЮЧАЕМ ДЛЯ JS
+      'import/no-unresolved': 'error',
+      'import/no-unused-modules': 'error',
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': 'error',
     },
   },
-  // 5. Строгая проверка типов ТОЛЬКО для новых файлов TypeScript (.ts, .tsx)
+  // Конфигурация для TypeScript файлов (.ts, .tsx)
   {
     files: ['**/*.{ts,tsx}'],
+    ...tseslint.configs.recommendedTypeCheckedOnly.rules,
+    ...tseslint.configs.stylisticTypeCheckedOnly.rules,
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
         ecmaFeatures: { jsx: true },
+        project: './tsconfig.json',
         projectService: true,
-        tsconfigRootDir: import.meta.dirname ?? __dirname,
+        tsconfigRootDir: import.meta.dirname,
         warnOnUnsupportedTypeScriptVersion: false,
       },
     },
@@ -143,10 +151,6 @@ export default defineConfig([
       '@typescript-eslint': tseslint.plugin,
     },
     rules: {
-      // Подмешиваем правила TypeChecked
-      ...tseslint.configs.recommendedTypeChecked?.rules,
-      ...tseslint.configs.stylisticTypeChecked?.rules,
-      // Кастомные правила TypeScript
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/consistent-type-imports': [
         'error',
@@ -158,7 +162,6 @@ export default defineConfig([
       ],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',
-      '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-inferrable-types': [
         'error',
         {
@@ -166,6 +169,7 @@ export default defineConfig([
           ignoreProperties: false,
         },
       ],
+      '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-unused-expressions': [
         'error',
         {
@@ -173,30 +177,26 @@ export default defineConfig([
           allowTernary: true,
         },
       ],
-
-      // Контроль неиспользуемых переменных и импортов в TS
       '@typescript-eslint/no-unused-imports': 'off',
       'unused-imports/no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
           args: 'after-used',
-          argsIgnorePattern: '^_[a-zA-Z0-9_]*$',
-          caughtErrorsIgnorePattern: '^_[a-zA-Z0-9_]*$',
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
           vars: 'all',
-          varsIgnorePattern: '^_[a-zA-Z0-9_]*$',
+          varsIgnorePattern: '^_',
         },
       ],
     },
     settings: {
       'import/resolver': {
         typescript: {
-          alwaysTryTypes: true,
           project: './tsconfig.json',
         },
       },
     },
   },
-  // 6. Форматирование кода через Prettier (в самом конце)
   eslintPluginPrettierRecommended,
 ]);
