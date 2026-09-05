@@ -77,7 +77,9 @@ export const BurgerConstructor = (): ReactElement => {
   return (
     <section
       ref={(node: HTMLElement | null): void => {
-        if (node) dropTargetRef(node);
+        if (node) {
+          dropTargetRef(node);
+        }
       }}
       className={styles.burger_constructor}
     >
@@ -104,7 +106,7 @@ export const BurgerConstructor = (): ReactElement => {
         {constructorIngredients.length > 0 ? (
           <ul className={`${styles.ingredients_set} custom-scroll`}>
             {constructorIngredients.map(
-              (base: TConstructorIngredient, index: number) => (
+              (base: TConstructorIngredient, index: number): ReactElement => (
                 <ConstructorIngredient
                   // Используем уникальный id из nanoid в качестве ключа
                   key={base.id}
@@ -224,7 +226,8 @@ const ConstructorIngredient: FC<TConstructorIngredientProps> = ({
     <li
       ref={(node: HTMLLIElement | null): void => {
         if (node) {
-          void dragRef(dropRef(node));
+          dragRef(node);
+          dropRef(node);
         }
       }}
       style={opacityStyle}
