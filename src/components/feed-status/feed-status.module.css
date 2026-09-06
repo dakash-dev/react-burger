@@ -1,0 +1,66 @@
+/* Главный контейнер панели статистики */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+}
+
+/* Блок со списками номеров (Готово и В работе) */
+
+.board {
+  display: flex;
+  gap: 24px;
+}
+
+/* Колонка одного статуса */
+
+.status_block {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* Заголовок статуса ("Готово:" / "В работе:") */
+
+.title {
+  margin-bottom: 24px;
+}
+
+/* Сетка для вывода колонок с номерами */
+
+.columns_grid {
+  display: flex;
+  gap: 24px;
+}
+
+/* Список номеров (один чанк из 10 элементов) */
+
+.number_list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Номер готового заказа (крупный цифровой шрифт + неоновый зеленый цвет) */
+
+.number_done {
+  color: #00ecc6;
+  text-shadow: 0 0 10px rgb(0 236 198 / 30%);
+}
+
+/* Номер заказа в работе (стандартный белый цвет) */
+
+.number_pending {
+  color: #f2f2f3;
+}
+
+/* Цифровой счетчик для "Всего за все время" и "Всего за сегодня" */
+
+.counter_digits {
+  text-shadow: 0 0 15px rgb(242 242 243 / 10%);
+}
