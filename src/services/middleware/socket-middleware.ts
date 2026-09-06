@@ -16,7 +16,10 @@ export type TWSActionTypes = {
   wsMessage: ActionCreatorWithPayload<any>; // Структура универсальна. Слайс сам знает, что придет.
 };
 
-export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => {
+export const createSocketMiddleware = (
+  wsAction: TWSActionTypes,
+  withTokenRefresh = false
+): Middleware => {
   return (store) => {
     let socket: WebSocket | null = null;
     let isConnected = false;
@@ -57,18 +60,20 @@ export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => 
             const { data } = event;
             const parseData = JSON.parse(data);
             // Перехват ошибки протухшего токена согласно ТЗ
-            if (parseData.message === 'Invalid or missing token') {
-              isConnected = false;
-              if (socket) {
-                socket.close();
-              }
+            if (withTokenRefresh && parseData.message === 'Invalid or missing token') {
+              dispatch(wsAction.wsDisconnect());
               // процесс обновления токена через API-слой&
               import('@/utils/burger-api').then(({ refreshTokenRequest }) => {
                 refreshTokenRequest()
-                  .then((): void => {
+                  .then((refreshedData): void => {
+                    const wssUrl = new URL(currentUrl);
+                    wssUrl.searchParams.set(
+                      'token',
+                      refreshedData.accessToken.replace('Bearer ', '')
+                    );
                     // Токен  обновлсяется и заново переподключение.
                     // Передаем базовый путь, Middleware само прицепит токен из localStorage
-                    dispatch(wsAction.wsConnect('/orders'));
+                    dispatch(wsAction.wsConnect(wssUrl.toString()));
                   })
                   .catch((): void => {
                     // Если даже рефреш-токен сдох, шлем ошибку авторизации в стор
