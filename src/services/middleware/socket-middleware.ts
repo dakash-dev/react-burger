@@ -22,6 +22,7 @@ export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => 
     let isConnected = false;
     let currentUrl = '';
     const reconnectPeriod = 3000; // Пауза перед переподключением — 3 секунды
+    let reconnectTimerId = 0;
 
     return (next) => (action) => {
       const { dispatch } = store;
@@ -29,9 +30,17 @@ export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => 
       const { type } = customAction; // Извлекаем тип пролетающего экшена
 
       if (type === wsAction.wsConnect.type) {
-        const url = customAction.payload as string;
+        let url = customAction.payload as string;
+        if (url.includes('/orders') && !url.includes('/all')) {
+          const accessToken = localStorage.getItem('accessToken');
+          if (accessToken) {
+            // // Отрезаем "Bearer ", оставляя только чистый токен для сокета - по заданию.
+            const clearTokens = accessToken.replace('Bearer ', '');
+            url = `${url}?token=${clearTokens}`;
+          }
+        }
         isConnected = true; // Пользователь намеренно открыл экран ленты
-        currentUrl = url; // Запоминаем текущий URL для возможного авто-реконнекта
+        currentUrl = url; // Запоминаем  URL для возможного авто-реконнекта c token
         // Переводим сокет в состояние "в процессе подключения"
         dispatch(wsAction.wsConnecting());
 
@@ -47,7 +56,28 @@ export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => 
             // event.data = сырая JSON-строка от бэкенда
             const { data } = event;
             const parseData = JSON.parse(data);
-            // Отправляем распарсенные данные в наш слайс&
+            // Перехват ошибки протухшего токена согласно ТЗ
+            if (parseData.message === 'Invalid or missing token') {
+              isConnected = false;
+              if (socket) {
+                socket.close();
+              }
+              // процесс обновления токена через API-слой&
+              import('@/utils/burger-api').then(({ refreshTokenRequest }) => {
+                refreshTokenRequest()
+                  .then((): void => {
+                    // Токен  обновлсяется и заново переподключение.
+                    // Передаем базовый путь, Middleware само прицепит токен из localStorage
+                    dispatch(wsAction.wsConnect('/orders'));
+                  })
+                  .catch((): void => {
+                    // Если даже рефреш-токен сдох, шлем ошибку авторизации в стор
+                    dispatch(wsAction.wsError('Не удалось обновить токен авторизации'));
+                  });
+              });
+              return; // Прерываем дальнейшую обработку сообщения
+            }
+            // Отправляем штатные распарсенные данные в наш слайс&
             dispatch(wsAction.wsMessage(parseData));
           } catch {
             //  если ошибка  -  отправка ощибки в редюсер.
@@ -64,7 +94,7 @@ export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => 
           socket = null;
           //  автопереподключение, если разрыв произошел со стороны сервера
           if (isConnected) {
-            setTimeout((): void => {
+            reconnectTimerId = window.setTimeout((): void => {
               // Переподключаемся по сохраненному ранее адресу
               dispatch(wsAction.wsConnect(currentUrl));
             }, reconnectPeriod);
@@ -73,6 +103,8 @@ export const createSocketMiddleware = (wsAction: TWSActionTypes): Middleware => 
       }
 
       if (type === wsAction.wsDisconnect.type) {
+        clearTimeout(reconnectTimerId);
+        reconnectTimerId = 0;
         isConnected = false; // Пользователь сам ушел с экрана, переподключение не требуется
         if (socket) {
           socket.close();
