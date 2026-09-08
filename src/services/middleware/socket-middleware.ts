@@ -1,3 +1,4 @@
+import type { TAuthResponse } from '@/utils/burger-api';
 // https://redux-toolkit.js.org/usage/migrating-to-modern-redux
 import type {
   ActionCreatorWithPayload,
@@ -6,18 +7,18 @@ import type {
 // https://redux.js.org/usage/writing-custom-middleware
 import type { Middleware, UnknownAction } from 'redux';
 
-export type TWSActionTypes = {
+export type TWSActionTypes<T = unknown> = {
   wsConnect: ActionCreatorWithPayload<string>;
   wsDisconnect: ActionCreatorWithoutPayload;
   wsConnecting: ActionCreatorWithoutPayload;
   wsOpen: ActionCreatorWithoutPayload;
   wsClose: ActionCreatorWithoutPayload;
   wsError: ActionCreatorWithPayload<string>;
-  wsMessage: ActionCreatorWithPayload<any>; // Структура универсальна. Слайс сам знает, что придет.
+  wsMessage: ActionCreatorWithPayload<T>;
 };
 
-export const createSocketMiddleware = (
-  wsAction: TWSActionTypes,
+export const createSocketMiddleware = <T>(
+  wsAction: TWSActionTypes<T>,
   withTokenRefresh = false
 ): Middleware => {
   return (store) => {
@@ -60,12 +61,18 @@ export const createSocketMiddleware = (
             const { data } = event;
             const parseData = JSON.parse(data);
             // Перехват ошибки протухшего токена согласно ТЗ
-            if (withTokenRefresh && parseData.message === 'Invalid or missing token') {
+            if (
+              withTokenRefresh &&
+              parseData &&
+              typeof parseData === 'object' &&
+              (parseData as Record<string, unknown>).message ===
+                'Invalid or missing token'
+            ) {
               dispatch(wsAction.wsDisconnect());
               // процесс обновления токена через API-слой&
               import('@/utils/burger-api').then(({ refreshTokenRequest }) => {
                 refreshTokenRequest()
-                  .then((refreshedData): void => {
+                  .then((refreshedData: TAuthResponse): void => {
                     const wssUrl = new URL(currentUrl);
                     wssUrl.searchParams.set(
                       'token',
@@ -108,7 +115,7 @@ export const createSocketMiddleware = (
       }
 
       if (type === wsAction.wsDisconnect.type) {
-        clearTimeout(reconnectTimerId);
+        window.clearTimeout(reconnectTimerId);
         reconnectTimerId = 0;
         isConnected = false; // Пользователь сам ушел с экрана, переподключение не требуется
         if (socket) {

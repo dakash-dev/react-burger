@@ -5,6 +5,7 @@ import {
 } from '@/services/feed/slice';
 import { useAppSelector } from '@/services/hooks';
 
+import type { TFeedOrder } from '@/utils/burger-api';
 import type { FC, ReactElement } from 'react';
 
 import styles from './feed-status.module.css';
@@ -26,13 +27,15 @@ export const FeedStatus: FC = (): ReactElement => {
 
   // 2. Отбираем только готовые заказы (status === 'done') и берем только номера
   const doneNumbers = orders
-    .filter((order) => order.status === 'done')
-    .map((order) => order.number);
+    .filter((order: TFeedOrder) => order.status === 'done')
+    .map((order: TFeedOrder) => order.number);
 
   // 3. Отбираем заказы в работе (status === 'pending' или 'created')
   const pendingNumbers = orders
-    .filter((order) => order.status === 'pending' || order.status === 'created')
-    .map((order) => order.number);
+    .filter(
+      (order: TFeedOrder) => order.status === 'pending' || order.status === 'created'
+    )
+    .map((order: TFeedOrder) => order.number);
 
   // 4. Разбиваем на колонки по 10 штук и жестко лимитируем до 2 колонок по ТЗ
   const doneColumns = chunkArray(doneNumbers, 10).slice(0, 2);
