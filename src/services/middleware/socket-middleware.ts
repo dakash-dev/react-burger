@@ -119,7 +119,13 @@ export const createSocketMiddleware = <T>(
         reconnectTimerId = 0;
         isConnected = false; // Пользователь сам ушел с экрана, переподключение не требуется
         if (socket) {
-          socket.close();
+          // Если сокет еще не успел открыться (CONNECTING), временно глушим дефолтный
+          // onclose, чтобы он принудительно не запускал лог ошибки и авто-реконнект
+          if (socket.readyState === WebSocket.CONNECTING) {
+            socket.onclose = null;
+          }
+          // Закрываем соединение с кодом 1000 (Normal Closure)
+          socket.close(1000, 'Компонент размонтирован пользователем');
           socket = null;
         }
       }
