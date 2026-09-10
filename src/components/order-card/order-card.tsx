@@ -2,6 +2,7 @@ import {
   CurrencyIcon,
   FormattedDate,
 } from '@krgaa/react-developer-burger-ui-components';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useAppSelector } from '@/services/hooks';
 import { selectIngredients } from '@/services/ingredients/slice';
@@ -30,6 +31,7 @@ export const OrderCard: FC<TOrderCardProps> = ({
   order,
   showStatus = false,
 }): ReactElement => {
+  const location = useLocation();
   // 1 -  Достаем полный справочник ингредиентов из Redux
   const allIngredients = useAppSelector(selectIngredients);
   // 2 - Создаем карту (map) для поиска объектов ингредиентов по их _id
@@ -73,61 +75,74 @@ export const OrderCard: FC<TOrderCardProps> = ({
     created: 'Создан',
   };
 
+  // определяем  путь в зависимости от того, где находится карточка
+  const orderPath = showStatus ? `/profile/orders/${order._id}` : `/feed/${order._id}`;
+
   return (
-    <div className={`${styles.card} p-6 mb-4`}>
-      <div className={styles.header}>
-        <span className="text text_type_digits-default">#{order.number}</span>
-        <span className="text text_type_main-default text_color_inactive">
-          <FormattedDate date={new Date(order.createdAt)} />
-        </span>
-      </div>
+    <Link
+      to={orderPath}
+      // Передаем текущий location в стейт роутера.
+      // Именно это заставит App.tsx понять, что нужно открыть модалку ПОВЕРХ страницы!
+      state={{ background: location }}
+      className={styles.card_link}
+    >
+      <div className={`${styles.card} p-6 mb-4`}>
+        <div className={styles.header}>
+          <span className="text text_type_digits-default">#{order.number}</span>
+          <span className="text text_type_main-default text_color_inactive">
+            <FormattedDate date={new Date(order.createdAt)} />
+          </span>
+        </div>
 
-      <h2 className="text text_type_main-medium mt-6 mb-2">{order.name}</h2>
+        <h2 className="text text_type_main-medium mt-6 mb-2">{order.name}</h2>
 
-      {/* Проверка флага showStatus для вывода статуса заказа в истории профиля */}
-      {showStatus && (
-        <p
-          className={`text text_type_main-default mb-6 ${order.status === 'done' ? styles.status_done : ''}`}
-        >
-          {statusLabels[order.status]}
-        </p>
-      )}
+        {/* Проверка флага showStatus для вывода статуса заказа в истории профиля */}
+        {showStatus && (
+          <p
+            className={`text text_type_main-default mb-6 ${order.status === 'done' ? styles.status_done : ''}`}
+          >
+            {statusLabels[order.status]}
+          </p>
+        )}
 
-      {/* для выравнивания нижней части карточки */}
-      <div className={styles.footer}>
-        {/* для горизонтального ряда иконок */}
-        <ul className={styles.icons_list}>
-          {iconsToRender.map((ingredient: TIngredient, index: number): ReactElement => {
-            const isLast = index === maxIcons - 1 && remainingCount > 0;
-            return (
-              <li
-                key={`${ingredient._id}-${index}`}
-                // динамический расчет zIndex, зависящий от индекса перебора.
-                className={styles.icon_wrapper}
-                style={{ zIndex: maxIcons - index }}
-              >
-                <img
-                  src={ingredient.image_mobile}
-                  alt={ingredient.name}
-                  className={styles.icon_img}
-                />
+        {/* для выравнивания нижней части карточки */}
+        <div className={styles.footer}>
+          {/* для горизонтального ряда иконок */}
+          <ul className={styles.icons_list}>
+            {iconsToRender.map(
+              (ingredient: TIngredient, index: number): ReactElement => {
+                const isLast = index === maxIcons - 1 && remainingCount > 0;
+                return (
+                  <li
+                    key={`${ingredient._id}-${index}`}
+                    // динамический расчет zIndex, зависящий от индекса перебора.
+                    className={styles.icon_wrapper}
+                    style={{ zIndex: maxIcons - index }}
+                  >
+                    <img
+                      src={ingredient.image_mobile}
+                      alt={ingredient.name}
+                      className={styles.icon_img}
+                    />
 
-                {/* Если ингредиентов > 6, накладываем маску со счетчиком остатка */}
-                {isLast && (
-                  <div className={`${styles.overlay} text text_type_main-default`}>
-                    +{remainingCount}
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                    {/* Если ингредиентов > 6, накладываем маску со счетчиком остатка */}
+                    {isLast && (
+                      <div className={`${styles.overlay} text text_type_main-default`}>
+                        +{remainingCount}
+                      </div>
+                    )}
+                  </li>
+                );
+              }
+            )}
+          </ul>
 
-        <div className={styles.price}>
-          <span className="text text_type_digits-default mr-2">{totalPrice}</span>
-          <CurrencyIcon type="primary" />
+          <div className={styles.price}>
+            <span className="text text_type_digits-default mr-2">{totalPrice}</span>
+            <CurrencyIcon type="primary" />
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
