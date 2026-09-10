@@ -50,9 +50,14 @@ export const feedSlice = createSlice({
   },
   reducers: {
     // Экшены-триггеры для Middleware
-    wsConnect: (state: TFeedState): void => {
-      state.isConnected = false;
-      state.error = null;
+    wsConnect: {
+      reducer(state: TFeedState): void {
+        state.isConnected = false;
+        state.error = null;
+      },
+      prepare(url: string) {
+        return { payload: url };
+      },
     },
     wsDisconnect: (state: TFeedState): void => {
       state.isConnected = false;

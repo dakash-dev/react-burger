@@ -1,0 +1,36 @@
+/* Главный контейнер страницы ленты */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Сетка контента: двухколоночный лейаут по ТЗ */
+
+.content {
+  display: flex;
+  gap: 60px; /* Отступ между списком заказов и статистикой */
+  height: calc(100vh - 250px); /* Фиксируем высоту, чтобы работал внутренний скролл */
+  min-height: 400px;
+  margin-top: 20px;
+}
+
+/* Левая колонка: Прокручиваемый вертикальный список карточек */
+
+.orders_section {
+  flex: 1; /* Занимает половину свободного пространства */
+  padding-right: 8px; /* Зазор для красивого отображения скроллбара */
+  overflow-y: auto; /* Включает вертикальную прокрутку */
+}
+
+/* Правая колонка: Панель статистики и счетчиков */
+
+.status_section {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}

@@ -215,7 +215,7 @@ export const logoutUserRequest = (): Promise<TBaseResponse> =>
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      authorization: localStorage.getItem('accessToken') || '', // ДОБАВЛЕНО
+      authorization: localStorage.getItem('accessToken') || '',
     },
     body: JSON.stringify({ token: localStorage.getItem('refreshToken') }),
   });
