@@ -3,7 +3,10 @@ import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import Modal from '@/components/modal/modal';
 import OrderDetails from '@/components/order-details/order-details';
+import { OrderInfo } from '@/components/order-info/order-info';
 import Preloader from '@/components/preloader/preloader';
+import { FeedPage } from '@/pages/feed/feed';
+import { ProfileOrdersPage } from '@/pages/profile-orders/profile-orders';
 import { fetchIngredients } from '@/services/ingredients/action';
 import {
   selectIngredientsLoading,
@@ -96,18 +99,20 @@ export const App = (): ReactElement => {
         <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />}>
           {/* index означает, что по умолчанию на самом /profile откроется форма */}
           <Route index element={<ProfileForm />} />
-          {/* по адресу /profile/orders откроется заглушка истории заказов по ТЗ */}
-          <Route
-            path="orders"
-            element={
-              <div className="text text_type_main-medium ml-15 mt-10">
-                История заказов (Заглушка)
-              </div>
-            }
-          />
+          {/* Заменил текстовую заглушку на полноценный компонент истории заказов пользователя */}
+          <Route path="orders" element={<ProfileOrdersPage />} />
         </Route>
         {/* заход по прямой ссылке (без фона) */}
         <Route path="/ingredients/:id" element={<IngredientPage />} />
+        {/* Общедоступный маршрут для страницы глобальной ленты заказов */}
+        <Route path="/feed" element={<FeedPage />} />
+        {/* Маршрут для открытия деталей заказа на отдельной изолированной странице */}
+        <Route path="/feed/:id" element={<OrderInfo />} />
+        {/* Защищенный маршрут для открытия деталей заказа из истории на отдельной странице */}
+        <Route
+          path="/profile/orders/:id"
+          element={<OnlyAuth component={<OrderInfo />} />}
+        />
       </Routes>
 
       {backgroundLocation && (
@@ -123,6 +128,32 @@ export const App = (): ReactElement => {
               >
                 {/* Используем твою же страницу внутри модалки! Она сама вытащит ID из урла */}
                 <IngredientPage />
+              </Modal>
+            }
+          />
+          {/* Открытие деталей заказа из общей ленты в модальном окне при клике на карточку */}
+          <Route
+            path="/feed/:id"
+            element={
+              <Modal
+                onClose={(): void => {
+                  navigate('/feed');
+                }}
+              >
+                <OrderInfo />
+              </Modal>
+            }
+          />
+          {/* Открытие деталей персонального заказа в модальном окне при клике из истории профиля */}
+          <Route
+            path="/profile/orders/:id"
+            element={
+              <Modal
+                onClose={(): void => {
+                  navigate('/profile/orders');
+                }}
+              >
+                <OnlyAuth component={<OrderInfo />} />
               </Modal>
             }
           />

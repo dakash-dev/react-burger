@@ -8,6 +8,7 @@ import { useAppSelector } from '@/services/hooks';
 import { selectIngredients } from '@/services/ingredients/slice';
 
 import type { TIngredient } from '@/utils/burger-api';
+import type { RootState } from '@services/store';
 import type { FC, ReactElement } from 'react';
 import type { DragSourceMonitor } from 'react-dnd';
 
@@ -142,7 +143,9 @@ export const BurgerIngredients = (): ReactElement => {
 const IngredientCard: FC<TIngredientCardProps> = ({ model }): ReactElement => {
   const navigate = useNavigate();
   const location = useLocation();
-  const count = useAppSelector((state) => selectIngredientCount(state)(model._id));
+  const count = useAppSelector((state: RootState) =>
+    selectIngredientCount(state)(model._id)
+  );
 
   const [{ isDragging }, dragRef] = useDrag<
     TIngredient,
@@ -164,7 +167,9 @@ const IngredientCard: FC<TIngredientCardProps> = ({ model }): ReactElement => {
   return (
     <li
       ref={(node: HTMLElement | null): void => {
-        dragRef(node);
+        if (node) {
+          dragRef(node);
+        }
       }}
       style={opacityStyle}
       className={styles.card}

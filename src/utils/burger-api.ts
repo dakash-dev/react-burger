@@ -52,6 +52,17 @@ export type TOrderResponse = TBaseResponse & {
   };
 };
 
+// Тип для отдельного заказа из ленты/истории.
+export type TFeedOrder = {
+  _id: string;
+  ingredients: Array<string>;
+  status: 'done' | 'pending' | 'created';
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  number: number;
+};
+
 // Опции запроса с флагом повтора для fetchWithRefresh
 type TCustomFetchOptions = RequestInit & {
   _retry?: boolean;
@@ -61,6 +72,25 @@ const request = <T>(endpoint: string, options?: RequestInit): Promise<T> => {
   return fetch(`${BASE_URL}${endpoint}`, options).then((res: Response) =>
     checkResponse<T>(res)
   ); // Передаем ссылку на функцию
+};
+
+// Тип ответа сервера при запросе конкретного заказа по его ID
+export type TSingleOrderResponse = TBaseResponse & {
+  orders?: Array<TFeedOrder>;
+  // от эндпоинта /api/orders/{id}
+  order?: TFeedOrder;
+};
+
+// Функция для запроса конкретного заказа по его идентификатору
+// Используем fetchWithRefresh, - маршруты истории заказов могут требовать авторизации
+// а эндпоинт универсален для "/feed/:id" и "/profile/orders/:id".
+export const getOrderRequest = (id: string): Promise<TSingleOrderResponse> => {
+  return fetchWithRefresh<TSingleOrderResponse>(`/orders/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 };
 
 // Сохранение токенов в localStorage после логина или регистрации
@@ -187,7 +217,7 @@ export const logoutUserRequest = (): Promise<TBaseResponse> =>
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      authorization: localStorage.getItem('accessToken') || '', // ДОБАВЛЕНО
+      authorization: localStorage.getItem('accessToken') || '',
     },
     body: JSON.stringify({ token: localStorage.getItem('refreshToken') }),
   });

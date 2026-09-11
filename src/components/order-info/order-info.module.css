@@ -1,0 +1,110 @@
+/* Основной контейнер детализации заказа */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Номер заказа, выровненный по центру или по левому краю в зависимости от контейнера (модалка/страница) */
+
+.number {
+  display: block;
+  text-align: center;
+}
+
+/* Стилизация статуса "Выполнен" (акцентный бирюзовый цвет по ТЗ) */
+
+.status_done {
+  color: #00ecc6;
+}
+
+/* Список ингредиентов с фиксированной максимальной высотой и кастомным скроллом */
+
+.ingredients_list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 312px;
+  margin: 0;
+  padding: 0;
+  padding-right: 4px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+/* Элемент списка ингредиентов (название слева, цена справа) */
+
+.ingredient_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Левая часть элемента: круглая превью-картинка и название */
+
+.ingredient_preview {
+  display: flex;
+  align-items: center;
+}
+
+/* Круглая обертка для иконки ингредиента */
+
+.icon_wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  width: 64px;
+  height: 64px;
+  padding: 2px;
+  background: linear-gradient(180deg, #4c4cff 0%, #2f2f36 100%);
+  border-radius: 50%;
+}
+
+/* Изображение внутри круглой обертки */
+
+.icon_img {
+  width: 100%;
+  height: 100%;
+  background-color: #131316;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Правая часть элемента: вывод цены в формате "N x Цена" и иконка валюты */
+
+.ingredient_price {
+  display: flex;
+  align-items: center;
+}
+
+/* Подвал компонента: дата создания слева, общая стоимость заказа справа */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Блок итоговой стоимости */
+
+.total {
+  display: flex;
+  align-items: center;
+}
+
+/* Центрирующий контейнер для экранов загрузки и ошибок */
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 200px;
+  text-align: center;
+}
