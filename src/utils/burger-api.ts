@@ -76,7 +76,9 @@ const request = <T>(endpoint: string, options?: RequestInit): Promise<T> => {
 
 // Тип ответа сервера при запросе конкретного заказа по его ID
 export type TSingleOrderResponse = TBaseResponse & {
-  orders: Array<TFeedOrder>;
+  orders?: Array<TFeedOrder>;
+  // от эндпоинта /api/orders/{id}
+  order?: TFeedOrder;
 };
 
 // Функция для запроса конкретного заказа по его идентификатору

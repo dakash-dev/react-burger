@@ -44,8 +44,15 @@ export const OrderInfo: FC = (): ReactElement | null => {
 
     getOrderRequest(id)
       .then((data: TSingleOrderResponse): void => {
-        if (data.success && data.orders.length > 0) {
-          setLocalOrder(data.orders[0]);
+        if (data.success) {
+          // Проверяем сначала одиночный объект order, затем массив orders
+          if (data.order) {
+            setLocalOrder(data.order);
+          } else if (data.orders && data.orders.length > 0) {
+            setLocalOrder(data.orders[0]);
+          } else {
+            setError('Заказ не найден');
+          }
         } else {
           setError('Заказ не найден');
         }
