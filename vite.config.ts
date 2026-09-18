@@ -25,9 +25,10 @@ export default defineConfig({
   ],
   base: '',
   test: {
-    globals: true,
+    globals: true, // (опционально) позволяет использовать describe, test без импорта
     environment: 'jsdom',
-    setupFiles: ['./vitest-setup.js'],
+    // setupFiles: ['./vitest-setup.js'],
+    setupFiles: './src/setupTests.ts', // файл предварительной настройки
   },
   server: {
     open: true,
