@@ -6,7 +6,7 @@ import {
 } from '@krgaa/react-developer-burger-ui-components';
 import { Link } from 'react-router-dom';
 
-import { SEO } from '@components/seo/seo';
+import SEO from '@components/seo/seo';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import { registerUser } from '../../services/auth/actions';

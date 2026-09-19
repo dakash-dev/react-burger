@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
-import { SEO } from '@components/seo/seo';
+import SEO from '@components/seo/seo';
 
 import { logoutUser } from '../../services/auth/actions';
 import { useAppDispatch } from '../../services/hooks';

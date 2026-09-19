@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { passwordResetConfirmRequest } from '@/utils/burger-api';
-import { SEO } from '@components/seo/seo';
+import SEO from '@components/seo/seo';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import type { TBaseResponse } from '@/utils/burger-api';

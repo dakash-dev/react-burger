@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { OrderCard } from '@/components/order-card/order-card';
 import { selectFeedOrders, wsConnect, wsDisconnect } from '@/services/feed/slice';
 import { useAppDispatch, useAppSelector } from '@/services/hooks';
-import { SEO } from '@components/seo/seo';
+import SEO from '@components/seo/seo';
 
 import type { TFeedOrder } from '@/utils/burger-api';
 import type { FC, ReactElement } from 'react';
