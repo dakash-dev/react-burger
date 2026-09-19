@@ -34,6 +34,8 @@ describe('WebSocket Middleware', (): void => {
   let mockWebSocketInstance: any;
 
   beforeEach((): void => {
+    // контроль времени (Fake Timers) перед каждым тестом
+    vi.useFakeTimers();
     store = {
       dispatch: vi.fn(),
       getState: vi.fn((): unknown => ({})),
@@ -62,6 +64,8 @@ describe('WebSocket Middleware', (): void => {
   });
 
   afterEach((): void => {
+    // Возвращаем нативное поведение таймеров обратно
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -75,6 +79,8 @@ describe('WebSocket Middleware', (): void => {
 
     // 2. Act
     invoke(action as unknown as UnknownAction);
+    // setTimeout(() => {}, 0)
+    vi.advanceTimersByTime(0);
 
     // 3. Assert
     expect(global.WebSocket).toHaveBeenCalledWith('ws://test-feed');
@@ -96,6 +102,8 @@ describe('WebSocket Middleware', (): void => {
 
     // 2. Act
     invoke(action as unknown as UnknownAction);
+    // Прокручиваем таймер вперед
+    vi.advanceTimersByTime(0);
 
     // 3. Assert
     expect(global.WebSocket).toHaveBeenCalledWith(
@@ -109,6 +117,8 @@ describe('WebSocket Middleware', (): void => {
     const invoke = middleware(store as any)(next);
     // Сначала инициируем коннект, чтобы middleware успело повесить слушатель onopen
     invoke(mockActions.wsConnect('ws://test') as unknown as UnknownAction);
+    // таймаут, чтобы сокет записал обработчик в mockWebSocketInstance.onopen
+    vi.advanceTimersByTime(0);
 
     // 2. Act: Симулируем событие открытия сокета браузером
     if (typeof mockWebSocketInstance.onopen === 'function') {
@@ -129,6 +139,8 @@ describe('WebSocket Middleware', (): void => {
 
     // Сначала подключаемся, чтобы сохранить ссылку на socket в замыкании
     invoke(mockActions.wsConnect('ws://test') as unknown as UnknownAction);
+    //  время на создание  сокета
+    vi.advanceTimersByTime(0);
 
     mockWebSocketInstance.readyState = 0; // WebSocket.CONNECTING
 
