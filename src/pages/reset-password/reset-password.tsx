@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { passwordResetConfirmRequest } from '@/utils/burger-api';
+import { SEO } from '@components/seo/seo';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import type { TBaseResponse } from '@/utils/burger-api';
@@ -62,6 +63,7 @@ export const ResetPassword = (): ReactElement | null => {
 
   return (
     <div className={styles.wrapper}>
+      <SEO title="Сброс пароля" />
       <form className={styles.form} noValidate onSubmit={handleSubmit}>
         <h2 className="text text_type_main-medium mb-6">Восстановление пароля</h2>
 

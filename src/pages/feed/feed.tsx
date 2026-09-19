@@ -4,6 +4,7 @@ import { FeedStatus } from '@/components/feed-status/feed-status';
 import { OrderCard } from '@/components/order-card/order-card';
 import { selectFeedOrders, wsConnect, wsDisconnect } from '@/services/feed/slice';
 import { useAppDispatch, useAppSelector } from '@/services/hooks';
+import { SEO } from '@components/seo/seo';
 
 import type { TFeedOrder } from '@/utils/burger-api';
 import type { FC, ReactElement } from 'react';
@@ -27,6 +28,10 @@ export const FeedPage: FC = (): ReactElement => {
 
   return (
     <main className={`${styles.main} pl-5 pr-5 pt-10`}>
+      <SEO
+        title="Лента космических заказов"
+        description="Следите за заказами галактики в реальном времени! ))"
+      />
       <h1 className="text text_type_main-large mb-5">Лента заказов</h1>
       <div className={styles.content}>
         {/* Левая колонка: Прокручиваемый список карточек всех заказов */}

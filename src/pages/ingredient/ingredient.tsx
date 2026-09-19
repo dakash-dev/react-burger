@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import IngredientDetails from '@/components/ingredient-details/ingredient-details';
 import { useAppSelector } from '@/services/hooks';
 import { selectIngredients } from '@/services/ingredients/slice';
+import { SEO } from '@components/seo/seo';
 
 import type { TIngredient } from '@/utils/burger-api';
 import type { ReactElement } from 'react';
@@ -23,6 +24,10 @@ const IngredientPage = (): ReactElement | null => {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title={ingredientData.name}
+        description={`Детальная информация об ингредиенте: ${ingredientData.name}`}
+      />
       <IngredientDetails item={ingredientData} />
     </div>
   );

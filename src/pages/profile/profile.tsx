@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
+import { SEO } from '@components/seo/seo';
+
 import { logoutUser } from '../../services/auth/actions';
 import { useAppDispatch } from '../../services/hooks';
 
@@ -12,6 +14,7 @@ export const ProfilePage = (): ReactElement => {
 
   return (
     <div className={styles.wrapper}>
+      <SEO title="Профиль пользователя" />
       <div>
         <nav className={styles.sidebar}>
           <NavLink
