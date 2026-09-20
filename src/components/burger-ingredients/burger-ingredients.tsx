@@ -173,6 +173,7 @@ const IngredientCard: FC<TIngredientCardProps> = ({ model }): ReactElement => {
       }}
       style={opacityStyle}
       className={styles.card}
+      data-testid="ingredient-card"
       onClick={(): void => {
         navigate(`/ingredients/${model._id}`, { state: { background: location } });
       }}
