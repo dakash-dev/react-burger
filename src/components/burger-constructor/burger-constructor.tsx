@@ -81,6 +81,8 @@ export const BurgerConstructor = (): ReactElement => {
           dropTargetRef(node);
         }
       }}
+      // data-testid="constructor-drop-target" для зоны сброса ингредиентов в Playwright
+      data-testid="constructor-drop-target"
       className={styles.burger_constructor}
     >
       <div className={`${styles.burger_list} pl-4`}>
@@ -164,6 +166,8 @@ export const BurgerConstructor = (): ReactElement => {
               size="large"
               onClick={handleOrderSubmit}
               disabled={!bun} // Кнопка заблокирована, до перетаскивания инградиента.
+              // data-testid="order-button" для клика при оформлении заказа в Playwright
+              data-testid="order-button"
             >
               Оформить заказ
             </Button>
