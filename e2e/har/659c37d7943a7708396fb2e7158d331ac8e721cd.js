@@ -1,0 +1,3 @@
+export const BASE_URL = "https://new-stellarburgers.education-services.ru/api";
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNvbnN0YW50cy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgY29uc3QgQkFTRV9VUkwgPSAnaHR0cHM6Ly9uZXctc3RlbGxhcmJ1cmdlcnMuZWR1Y2F0aW9uLXNlcnZpY2VzLnJ1L2FwaSc7XG4iXSwibWFwcGluZ3MiOiJBQUFPLGFBQU0sV0FBVzsiLCJuYW1lcyI6W119
