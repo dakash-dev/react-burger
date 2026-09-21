@@ -10,7 +10,7 @@ test.describe('Оформление заказа с HAR-моками', () => {
 
     // 2. Включаем режим автоматической записи HAR-файла
     // true - для первоначального запуска заполнения данных.
-    await page.routeFromHAR('./e2e/har/api-mocks.har', {
+    await page.routeFromHAR('./e2e/har/burger-constructor/api-mocks.har', {
       update: false, // Режим записи по инструкции
     });
 
