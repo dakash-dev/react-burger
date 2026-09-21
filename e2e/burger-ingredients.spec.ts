@@ -1,5 +1,3 @@
-// e2e/burger-ingredients.spec.ts
-// ДОБАВЛЕНО: Тесты кликов и модалок для компонента BurgerIngredients
 import { test, expect } from '@playwright/test';
 
 test.describe('Компонент BurgerIngredients E2E', () => {
