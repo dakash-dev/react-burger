@@ -9,6 +9,33 @@ test.describe('Тесты ингредиентов с HAR', () => {
       update: false, // true для первой автоматической записи всех данных
     });
 
+    // перехват для стабильного рендеринга карточки в любом окружении
+    await page.route('**/api/ingredients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: [
+            {
+              _id: '643d69a5c3b7490027fa3aca',
+              name: 'Краторная булка N-200i',
+              type: 'bun',
+              proteins: 80,
+              fat: 24,
+              carbohydrates: 53,
+              calories: 420,
+              price: 1255,
+              image: 'https://yandex.net',
+              image_mobile: 'https://yandex.net',
+              image_large: 'https://yandex.net',
+              __v: 0,
+            },
+          ],
+        }),
+      });
+    });
+
     await page.goto('/');
     await page.waitForSelector('text=Краторная булка');
   });

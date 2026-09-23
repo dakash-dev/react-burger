@@ -11,6 +11,7 @@ test.describe('Оформление заказа с HAR-моками', () => {
     // 2. Включаем режим автоматической записи HAR-файла
     // true - для первоначального запуска заполнения данных.
     await page.routeFromHAR('./e2e/har/burger-constructor/api-mocks.har', {
+      url: '**/api/**',
       update: false, // Режим записи по инструкции
     });
 
@@ -22,6 +23,33 @@ test.describe('Оформление заказа с HAR-моками', () => {
         body: JSON.stringify({
           success: true,
           user: { email: 'tester@kosmos.ru', name: 'Гагарин' },
+        }),
+      });
+    });
+
+    // мок списка ингредиентов, чтобы булка гарантированно отрендерилась
+    await page.route('**/api/ingredients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: [
+            {
+              _id: '643d69a5c3b7490027fa3aca',
+              name: 'Краторная булка',
+              type: 'bun',
+              proteins: 80,
+              fat: 24,
+              carbohydrates: 53,
+              calories: 420,
+              price: 1255,
+              image: 'https://yandex.net',
+              image_mobile: 'https://yandex.net',
+              image_large: 'https://yandex.net',
+              __v: 0,
+            },
+          ],
         }),
       });
     });
