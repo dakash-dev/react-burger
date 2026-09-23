@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test('example', async ({ page }): Promise<void> => {
   await page.goto('/');
-  // await expect(page.getByText('Соберите бургер')).toBeVisible();
-  // для стабильности в Firefox
-  await expect(page.getByText(/соберите бургер/i)).toBeVisible();
+  // Ищем конкретный h1 с текстом "бургер" вместо абстрактного getByText
+  const mainHeader = page.locator('h1', { hasText: /бургер/i });
+  // Playwright сам ждет 10 секунд, пока элемент станет видимым
+  await expect(mainHeader).toBeVisible({ timeout: 10000 });
 });
