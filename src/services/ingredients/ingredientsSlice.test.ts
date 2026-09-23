@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { fetchIngredients } from './action';
-import ingredientsReducer, { ingredientsSlice } from './slice';
+import ingredientsReducer, { ingredientsSlice, initialState } from './slice';
 
 import type { TIngredient } from '@/utils/burger-api';
 
@@ -29,91 +29,77 @@ describe('ingredients slice', (): void => {
   };
 
   it('должен возвращать исходное состояние, если передан неизвестный экшен', (): void => {
-    // 1. Arrange
-    const expectedInitialState: TIngredientsState = {
-      ingredients: [],
-      isLoading: false,
-      error: null,
-    };
-
-    // 2. Act
+    // 1. Arrange & Act
     const result = ingredientsReducer(undefined, { type: 'UNKNOWN_ACTION' });
 
     // 3. Assert
-    expect(result).toEqual(expectedInitialState);
+    expect(result).toEqual(initialState);
   });
 
   it('должен устанавливать isLoading в true при fetchIngredients.pending', (): void => {
     // 1. Arrange
-    const initialState: TIngredientsState = {
-      ingredients: [],
-      isLoading: false,
+    const stateWithError: TIngredientsState = {
+      ...initialState,
       error: 'Предыдущая ошибка',
     };
 
     // 2. Act
-    const result = ingredientsReducer(initialState, fetchIngredients.pending(''));
+    const result = ingredientsReducer(stateWithError, fetchIngredients.pending(''));
 
     // 3. Assert
     expect(result).toEqual({
-      ingredients: [],
+      ...initialState,
       isLoading: true,
-      error: null,
     });
   });
 
   it('должен сохранять ингредиенты и сбрасывать isLoading при fetchIngredients.fulfilled', (): void => {
     // 1. Arrange
-    const initialState: TIngredientsState = {
-      ingredients: [],
+    const loadingState: TIngredientsState = {
+      ...initialState,
       isLoading: true,
-      error: null,
     };
     const mockPayload: Array<TIngredient> = [mockIngredient];
 
     // 2. Act
     const result = ingredientsReducer(
-      initialState,
+      loadingState,
       fetchIngredients.fulfilled(mockPayload, '', undefined)
     );
 
     // 3. Assert
     expect(result).toEqual({
+      ...initialState,
       ingredients: mockPayload,
-      isLoading: false,
-      error: null,
     });
   });
 
   it('должен сохранять ошибку из экшена и сбрасывать isLoading при fetchIngredients.rejected', (): void => {
     // 1. Arrange
-    const initialState: TIngredientsState = {
-      ingredients: [],
+    const loadingState: TIngredientsState = {
+      ...initialState,
       isLoading: true,
-      error: null,
     };
     const mockError = new Error('Ошибка сети');
 
     // 2. Act
     const result = ingredientsReducer(
-      initialState,
+      loadingState,
       fetchIngredients.rejected(mockError, '', undefined)
     );
 
     // 3. Assert
     expect(result).toEqual({
-      ingredients: [],
-      isLoading: false,
+      ...initialState,
       error: 'Ошибка сети',
     });
   });
 
   it('должен подставлять дефолтный текст ошибки при fetchIngredients.rejected без сообщения', (): void => {
     // 1. Arrange
-    const initialState: TIngredientsState = {
-      ingredients: [],
+    const loadingState: TIngredientsState = {
+      ...initialState,
       isLoading: true,
-      error: null,
     };
     // Создаем экшен с пустым объектом ошибки
     const action = {
@@ -122,7 +108,7 @@ describe('ingredients slice', (): void => {
     };
 
     // 2. Act
-    const result = ingredientsReducer(initialState, action);
+    const result = ingredientsReducer(loadingState, action);
 
     // 3. Assert
     expect(result.error).toBe('Что-то пошло не так');

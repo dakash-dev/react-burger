@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import feedReducer, {
   feedSlice,
+  initialState,
   wsClose,
   wsConnect,
   wsConnecting,
@@ -36,34 +37,23 @@ describe('feed slice', (): void => {
   };
 
   it('должен возвращать исходное состояние, если передан неизвестный экшен', (): void => {
-    // 1. Arrange
-    const expectedInitialState: TFeedState = {
-      isConnected: false,
-      orders: [],
-      total: 0,
-      totalToday: 0,
-      error: null,
-    };
-
-    // 2. Act
+    // 1. Arrange & Act
     const result = feedReducer(undefined, { type: 'UNKNOWN_ACTION' });
 
     // 3. Assert
-    expect(result).toEqual(expectedInitialState);
+    expect(result).toEqual(initialState);
   });
 
   it('должен сбрасывать ошибку при вызове wsConnect', (): void => {
     // 1. Arrange
-    const initialState: TFeedState = {
+    const stateWithOldError: TFeedState = {
+      ...initialState,
       isConnected: true,
-      orders: [],
-      total: 0,
-      totalToday: 0,
       error: 'Старая ошибка',
     };
 
     // 2. Act
-    const result = feedReducer(initialState, wsConnect('ws://test-url'));
+    const result = feedReducer(stateWithOldError, wsConnect('ws://test-url'));
 
     // 3. Assert
     expect(result.isConnected).toBe(false);
@@ -72,32 +62,28 @@ describe('feed slice', (): void => {
 
   it('должен переводить isConnected в false при wsDisconnect, wsConnecting и wsClose', (): void => {
     // 1. Arrange
-    const initialState: TFeedState = {
+    const activeState: TFeedState = {
+      ...initialState,
       isConnected: true,
-      orders: [],
       total: 100,
       totalToday: 10,
-      error: null,
     };
 
     // 2. Act & Assert
-    expect(feedReducer(initialState, wsDisconnect()).isConnected).toBe(false);
-    expect(feedReducer(initialState, wsConnecting()).isConnected).toBe(false);
-    expect(feedReducer(initialState, wsClose()).isConnected).toBe(false);
+    expect(feedReducer(activeState, wsDisconnect()).isConnected).toBe(false);
+    expect(feedReducer(activeState, wsConnecting()).isConnected).toBe(false);
+    expect(feedReducer(activeState, wsClose()).isConnected).toBe(false);
   });
 
   it('должен устанавливать флаг активности соединения при wsOpen', (): void => {
     // 1. Arrange
-    const initialState: TFeedState = {
-      isConnected: false,
-      orders: [],
-      total: 0,
-      totalToday: 0,
+    const closedState: TFeedState = {
+      ...initialState,
       error: 'Ошибка',
     };
 
     // 2. Act
-    const result = feedReducer(initialState, wsOpen());
+    const result = feedReducer(closedState, wsOpen());
 
     // 3. Assert
     expect(result.isConnected).toBe(true);
@@ -106,16 +92,13 @@ describe('feed slice', (): void => {
 
   it('должен сохранять текст ошибки при wsError', (): void => {
     // 1. Arrange
-    const initialState: TFeedState = {
+    const activeState: TFeedState = {
+      ...initialState,
       isConnected: true,
-      orders: [],
-      total: 0,
-      totalToday: 0,
-      error: null,
     };
 
     // 2. Act
-    const result = feedReducer(initialState, wsError('Критический сбой сети'));
+    const result = feedReducer(activeState, wsError('Критический сбой сети'));
 
     // 3. Assert
     expect(result.isConnected).toBe(false);
@@ -125,12 +108,9 @@ describe('feed slice', (): void => {
   describe('обработка wsMessage (включая Edge Cases валидации)', (): void => {
     it('должен сохранять корректные заказы и обновлять счетчики при wsMessage', (): void => {
       // 1. Arrange
-      const initialState: TFeedState = {
+      const activeState: TFeedState = {
+        ...initialState,
         isConnected: true,
-        orders: [],
-        total: 0,
-        totalToday: 0,
-        error: null,
       };
       const mockResponse: TWebSocketResponse = {
         success: true,
@@ -140,7 +120,7 @@ describe('feed slice', (): void => {
       };
 
       // 2. Act
-      const result = feedReducer(initialState, wsMessage(mockResponse));
+      const result = feedReducer(activeState, wsMessage(mockResponse));
 
       // 3. Assert
       expect(result.orders).toEqual([mockOrder]);
@@ -150,12 +130,9 @@ describe('feed slice', (): void => {
 
     it('должен отфильтровывать битые или некорректные заказы', (): void => {
       // 1. Arrange
-      const initialState: TFeedState = {
+      const activeState: TFeedState = {
+        ...initialState,
         isConnected: true,
-        orders: [],
-        total: 0,
-        totalToday: 0,
-        error: null,
       };
 
       // Подготавливаем массив с одним хорошим заказом и несколькими сломанными
@@ -175,7 +152,7 @@ describe('feed slice', (): void => {
       };
 
       // 2. Act
-      const result = feedReducer(initialState, wsMessage(mockResponse));
+      const result = feedReducer(activeState, wsMessage(mockResponse));
 
       // 3. Assert
       // Должен остаться только один валидный заказ
@@ -185,12 +162,11 @@ describe('feed slice', (): void => {
 
     it('должен проставлять нули в total и totalToday, если они пришли пустыми', (): void => {
       // 1. Arrange
-      const initialState: TFeedState = {
+      const stateWithCounters: TFeedState = {
+        ...initialState,
         isConnected: true,
-        orders: [],
         total: 50,
         totalToday: 5,
-        error: null,
       };
       const mockResponse = {
         success: true,
@@ -198,7 +174,7 @@ describe('feed slice', (): void => {
       } as unknown as TWebSocketResponse;
 
       // 2. Act
-      const result = feedReducer(initialState, wsMessage(mockResponse));
+      const result = feedReducer(stateWithCounters, wsMessage(mockResponse));
 
       // 3. Assert
       expect(result.total).toBe(0);

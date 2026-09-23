@@ -4,6 +4,7 @@ import { checkoutOrder } from '../order/action';
 import burgerConstructorReducer, {
   addIngredient,
   burgerConstructorSlice,
+  initialState,
   moveIngredient,
   removeIngredient,
   resetConstructor,
@@ -49,27 +50,17 @@ describe('burgerConstructor slice', (): void => {
   };
 
   it('должен возвращать исходное состояние, если передан неизвестный экшен', (): void => {
-    // 1. Arrange
-    const expectedInitialState: TBurgerConstructorState = {
-      bun: null,
-      ingredients: [],
-    };
+    // 1. Arrange & Act
 
-    // 2. Act
     const result = burgerConstructorReducer(undefined, { type: 'UNKNOWN_ACTION' });
 
     // 3. Assert
-    expect(result).toEqual(expectedInitialState);
+    expect(result).toEqual(initialState);
   });
 
   describe('добавление ингредиентов (addIngredient)', (): void => {
     it('должен заменять булку, если тип ингредиента "bun"', (): void => {
       // 1. Arrange
-      const initialState: TBurgerConstructorState = {
-        bun: null,
-        ingredients: [],
-      };
-
       // Имитируем экшен, который создается экспортным addIngredient
       const action = {
         type: addIngredient.type,
@@ -85,10 +76,6 @@ describe('burgerConstructor slice', (): void => {
 
     it('должен добавлять начинку в массив ingredients, сохраняя уникальный id', (): void => {
       // 1. Arrange
-      const initialState: TBurgerConstructorState = {
-        bun: null,
-        ingredients: [],
-      };
       const action = {
         type: addIngredient.type,
         payload: { ingredient: mockMainIngredient, id: 'unique-nanoid-1' },
@@ -108,8 +95,8 @@ describe('burgerConstructor slice', (): void => {
 
   it('должен удалять ингредиент по его уникальному id при вызове removeIngredient', (): void => {
     // 1. Arrange
-    const initialState: TBurgerConstructorState = {
-      bun: null,
+    const stateWithIngredients = {
+      ...initialState,
       ingredients: [
         { ...mockMainIngredient, id: 'id-to-keep' },
         { ...mockMainIngredient, id: 'id-to-remove' },
@@ -118,7 +105,7 @@ describe('burgerConstructor slice', (): void => {
 
     // 2. Act
     const result = burgerConstructorReducer(
-      initialState,
+      stateWithIngredients,
       removeIngredient('id-to-remove')
     );
 
@@ -133,15 +120,15 @@ describe('burgerConstructor slice', (): void => {
     const itemB = { ...mockMainIngredient, id: 'B', name: 'Ингредиент Б' };
     const itemC = { ...mockMainIngredient, id: 'C', name: 'Ингредиент В' };
 
-    const initialState: TBurgerConstructorState = {
-      bun: null,
+    const stateWithIngredients = {
+      ...initialState,
       ingredients: [itemA, itemB, itemC],
     };
 
     // Перемещаем элемент с индекса 0 (itemA) на индекс 1 (после itemB)
     // 2. Act
     const result = burgerConstructorReducer(
-      initialState,
+      stateWithIngredients,
       moveIngredient({ dragIndex: 0, hoverIndex: 1 })
     );
 
@@ -152,31 +139,31 @@ describe('burgerConstructor slice', (): void => {
 
   it('должен полностью очищать конструктор при вызове resetConstructor', (): void => {
     // 1. Arrange
-    const initialState: TBurgerConstructorState = {
+    const dirtyState = {
       bun: mockBun,
       ingredients: [{ ...mockMainIngredient, id: 'some-id' }],
     };
 
     // 2. Act
-    const result = burgerConstructorReducer(initialState, resetConstructor());
+    const result = burgerConstructorReducer(dirtyState, resetConstructor());
 
     // 3. Assert
-    expect(result).toEqual({ bun: null, ingredients: [] });
+    expect(result).toEqual(initialState);
   });
 
   it('должен очищать конструктор при успешном оформлении заказа checkoutOrder.fulfilled', (): void => {
     // 1. Arrange
-    const initialState: TBurgerConstructorState = {
+    const dirtyState = {
       bun: mockBun,
       ingredients: [{ ...mockMainIngredient, id: 'some-id' }],
     };
     const fulfilledAction = checkoutOrder.fulfilled(777, 'mock-id');
 
     // 2. Act
-    const result = burgerConstructorReducer(initialState, fulfilledAction);
+    const result = burgerConstructorReducer(dirtyState, fulfilledAction);
 
     // 3. Assert
-    expect(result).toEqual({ bun: null, ingredients: [] });
+    expect(result).toEqual(initialState);
   });
 
   describe('селекторы', (): void => {

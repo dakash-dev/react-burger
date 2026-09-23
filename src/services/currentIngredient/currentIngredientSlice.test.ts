@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import currentIngredientReducer, {
   clearIngredientDetails,
   currentIngredientSlice,
+  initialState,
   setIngredientDetails,
 } from './slice';
 
@@ -30,25 +31,15 @@ describe('currentIngredient slice', (): void => {
   };
 
   it('должен возвращать исходное состояние, если передан неизвестный экшен', (): void => {
-    // 1. Arrange
-    const expectedInitialState: TCurrentIngredientState = {
-      ingredient: null,
-    };
-
-    // 2. Act
+    // 1. Arrange & Act
     const result = currentIngredientReducer(undefined, { type: 'UNKNOWN_ACTION' });
 
     // 3. Assert
-    expect(result).toEqual(expectedInitialState);
+    expect(result).toEqual(initialState);
   });
 
   it('должен записывать данные ингредиента при вызове setIngredientDetails', (): void => {
-    // 1. Arrange
-    const initialState: TCurrentIngredientState = {
-      ingredient: null,
-    };
-
-    // 2. Act
+    // 1. Arrange & Act
     const result = currentIngredientReducer(
       initialState,
       setIngredientDetails(mockIngredient)
@@ -62,17 +53,18 @@ describe('currentIngredient slice', (): void => {
 
   it('должен очищать данные ингредиента при вызове clearIngredientDetails', (): void => {
     // 1. Arrange
-    const initialState: TCurrentIngredientState = {
+    const stateWithIngredient = {
+      ...initialState,
       ingredient: mockIngredient,
     };
-
     // 2. Act
-    const result = currentIngredientReducer(initialState, clearIngredientDetails());
+    const result = currentIngredientReducer(
+      stateWithIngredient,
+      clearIngredientDetails()
+    );
 
     // 3. Assert
-    expect(result).toEqual({
-      ingredient: null,
-    });
+    expect(result).toEqual(initialState);
   });
 
   describe('селекторы', (): void => {

@@ -16,7 +16,7 @@ type TBurgerConstructorState = {
   ingredients: Array<TConstructorIngredient>; // чтобы _id не был never  в /oredr/action
 };
 
-const initialState: TBurgerConstructorState = {
+export const initialState: TBurgerConstructorState = {
   bun: null,
   ingredients: [],
 };

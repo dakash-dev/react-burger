@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { loginUser, logoutUser, registerUser, updateUser } from './actions';
-import authReducer, { authSlice, setAuthChecked, setUser } from './slice';
+import authReducer, { authSlice, initialState, setAuthChecked, setUser } from './slice';
 
 import type { TUser } from '@/utils/burger-api';
 
@@ -25,43 +25,21 @@ describe('auth slice', (): void => {
 
   it('должен возвращать исходное состояние, если передан неизвестный экшен', (): void => {
     // 1. Arrange
-    const expectedInitialState: TAuthState = {
-      user: null,
-      isAuthChecked: false,
-      isLoading: false,
-      error: null,
-    };
-
-    // 2. Act
     const result = authReducer(undefined, { type: 'UNKNOWN_ACTION' });
 
     // 3. Assert
-    expect(result).toEqual(expectedInitialState);
+    expect(result).toEqual(initialState);
   });
 
   it('должен менять флаг проверки авторизации при вызове setAuthChecked', (): void => {
-    // 1. Arrange
-    const initialState: TAuthState = {
-      user: null,
-      isAuthChecked: false,
-      isLoading: false,
-      error: null,
-    };
-    // 2. Act
+    // 1. Arrange & Act
     const result = authReducer(initialState, setAuthChecked(true));
     // 3. Assert
     expect(result.isAuthChecked).toBe(true);
   });
 
   it('должен сохранять данные пользователя при вызове setUser', (): void => {
-    // 1. Arrange
-    const initialState: TAuthState = {
-      user: null,
-      isAuthChecked: false,
-      isLoading: false,
-      error: null,
-    };
-    // 2. Act
+    // 1. Arrange & Act
     const result = authReducer(initialState, setUser(mockUser));
     // 3. Assert
     expect(result.user).toEqual(mockUser);
@@ -70,7 +48,7 @@ describe('auth slice', (): void => {
   describe('тестирование extraReducers для registerUser', (): void => {
     it('registerUser.pending должен выставлять isLoading и сбрасывать ошибку', (): void => {
       const state = authReducer(
-        { user: null, isAuthChecked: false, isLoading: false, error: 'Ошибка' },
+        { ...initialState, error: 'Ошибка' },
         registerUser.pending('mock-id', mockForm)
       );
       expect(state.isLoading).toBe(true);
@@ -79,7 +57,7 @@ describe('auth slice', (): void => {
 
     it('registerUser.fulfilled должен сохранять юзера и выставлять флаги', (): void => {
       const state = authReducer(
-        { user: null, isAuthChecked: false, isLoading: true, error: null },
+        { ...initialState, isLoading: true },
         registerUser.fulfilled(mockUser, 'mock-id', mockForm)
       );
       expect(state.isLoading).toBe(false);
@@ -94,10 +72,7 @@ describe('auth slice', (): void => {
         mockForm,
         'Ошибка регистрации'
       );
-      const state = authReducer(
-        { user: null, isAuthChecked: false, isLoading: true, error: null },
-        action
-      );
+      const state = authReducer({ ...initialState, isLoading: true }, action);
       expect(state.isLoading).toBe(false);
       expect(state.error).toBe('Ошибка регистрации');
     });
@@ -105,16 +80,13 @@ describe('auth slice', (): void => {
 
   describe('тестирование extraReducers для loginUser', (): void => {
     it('loginUser.pending должен выставлять isLoading', (): void => {
-      const state = authReducer(
-        { user: null, isAuthChecked: false, isLoading: false, error: null },
-        loginUser.pending('mock-id', mockForm)
-      );
+      const state = authReducer(initialState, loginUser.pending('mock-id', mockForm));
       expect(state.isLoading).toBe(true);
     });
 
     it('loginUser.fulfilled должен сохранять сессию', (): void => {
       const state = authReducer(
-        { user: null, isAuthChecked: false, isLoading: true, error: null },
+        { ...initialState, isLoading: true },
         loginUser.fulfilled(mockUser, 'mock-id', mockForm)
       );
       expect(state.isLoading).toBe(false);
@@ -124,10 +96,7 @@ describe('auth slice', (): void => {
 
     it('loginUser.rejected должен сохранять ошибку', (): void => {
       const action = loginUser.rejected(null, 'mock-id', mockForm, 'Ошибка авторизации');
-      const state = authReducer(
-        { user: null, isAuthChecked: false, isLoading: true, error: null },
-        action
-      );
+      const state = authReducer({ ...initialState, isLoading: true }, action);
       expect(state.isLoading).toBe(false);
       expect(state.error).toBe('Ошибка авторизации');
     });
@@ -136,7 +105,7 @@ describe('auth slice', (): void => {
   describe('тестирование extraReducers для logoutUser', (): void => {
     it('logoutUser.pending должен менять isLoading', (): void => {
       const state = authReducer(
-        { user: mockUser, isAuthChecked: true, isLoading: false, error: null },
+        { ...initialState, user: mockUser, isAuthChecked: true },
         logoutUser.pending('mock-id')
       );
       expect(state.isLoading).toBe(true);
@@ -144,7 +113,7 @@ describe('auth slice', (): void => {
 
     it('logoutUser.fulfilled должен удалять пользователя', (): void => {
       const state = authReducer(
-        { user: mockUser, isAuthChecked: true, isLoading: true, error: null },
+        { ...initialState, user: mockUser, isAuthChecked: true, isLoading: true },
         logoutUser.fulfilled({ success: true }, 'mock-id')
       );
       expect(state.isLoading).toBe(false);
@@ -154,7 +123,7 @@ describe('auth slice', (): void => {
     it('logoutUser.rejected должен выставлять ошибку', (): void => {
       const action = logoutUser.rejected(null, 'mock-id', undefined, 'Ошибка выхода');
       const state = authReducer(
-        { user: mockUser, isAuthChecked: true, isLoading: true, error: null },
+        { ...initialState, user: mockUser, isAuthChecked: true, isLoading: true },
         action
       );
       expect(state.isLoading).toBe(false);
@@ -165,7 +134,7 @@ describe('auth slice', (): void => {
   describe('тестирование extraReducers для updateUser', (): void => {
     it('updateUser.pending должен сбрасывать ошибку', (): void => {
       const state = authReducer(
-        { user: mockUser, isAuthChecked: true, isLoading: false, error: 'Устарело' },
+        { ...initialState, user: mockUser, isAuthChecked: true, error: 'Устарело' },
         updateUser.pending('mock-id', mockForm)
       );
       expect(state.isLoading).toBe(true);
@@ -175,7 +144,7 @@ describe('auth slice', (): void => {
     it('updateUser.fulfilled должен обновлять юзера', (): void => {
       const updatedUser: TUser = { ...mockUser, name: 'Новое имя' };
       const state = authReducer(
-        { user: mockUser, isAuthChecked: true, isLoading: true, error: null },
+        { ...initialState, user: mockUser, isAuthChecked: true, isLoading: true },
         updateUser.fulfilled(updatedUser, 'mock-id', mockForm)
       );
       expect(state.isLoading).toBe(false);
@@ -185,7 +154,7 @@ describe('auth slice', (): void => {
     it('updateUser.rejected должен прокидывать ошибку в стор', (): void => {
       const action = updateUser.rejected(null, 'mock-id', mockForm, 'Сбой обновления');
       const state = authReducer(
-        { user: mockUser, isAuthChecked: true, isLoading: true, error: null },
+        { ...initialState, user: mockUser, isAuthChecked: true, isLoading: true },
         action
       );
       expect(state.isLoading).toBe(false);
