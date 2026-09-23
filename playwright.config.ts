@@ -27,7 +27,10 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     // baseURL: 'http://localhost:3000',
-    baseURL: 'http://localhost:5173',
+    // baseURL: 'http://localhost:5173',
+    /* Базовый URL для использования в goto() в тестах */
+    // Порт должен соответствовать серверу preview (4173)
+    baseURL: 'http://localhost:4173',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
@@ -75,8 +78,10 @@ export default defineConfig({
     //   command: 'npm run start',
     //   url: 'http://localhost:3000',
     //   reuseExistingServer: !process.env.CI,
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    // command: 'npm run dev',
+    command: 'npm run preview',
+    // url: 'http://localhost:5173',
+    url: 'http://localhost:4173', // Vite Preview по умолчанию использует порт 4173
     reuseExistingServer: !process.env.CI,
   },
 });
