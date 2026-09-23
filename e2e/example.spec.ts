@@ -2,5 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('example', async ({ page }): Promise<void> => {
   await page.goto('/');
-  await expect(page.getByText('Соберите бургер')).toBeVisible();
+  // await expect(page.getByText('Соберите бургер')).toBeVisible();
+  // для стабильности в Firefox
+  await expect(page.getByText(/соберите бургер/i)).toBeVisible();
 });
