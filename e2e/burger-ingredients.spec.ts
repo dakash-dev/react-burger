@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Компонент BurgerIngredients E2E', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('Компонент BurgerIngredients E2E', (): void => {
+  test.beforeEach(async ({ page }): Promise<void> => {
     await page.goto('/');
     await page.waitForSelector('text=Краторная булка');
   });
 
   test('должен открывать модальное окно с деталями при клике на ингредиент', async ({
     page,
-  }) => {
+  }): Promise<void> => {
     // Используем добавленный data-testid="ingredient-card"
     const ingredient = page
       .getByTestId('ingredient-card')
@@ -27,7 +27,7 @@ test.describe('Компонент BurgerIngredients E2E', () => {
 
   test('должен успешно закрывать модальное окно при клике на крестик', async ({
     page,
-  }) => {
+  }): Promise<void> => {
     const ingredient = page
       .getByTestId('ingredient-card')
       .filter({ hasText: 'Краторная булка' })

@@ -1,9 +1,13 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+
+import { BurgerConstructorPage } from './burger-constructor.page';
 
 test.describe('Оформление заказа с HAR-моками', () => {
-  test.beforeEach(async ({ page }) => {
+  let constructorPage: BurgerConstructorPage;
+
+  test.beforeEach(async ({ page }): Promise<void> => {
     // 1. Мокирование LocalStorage перед загрузкой страницы по теории
-    await page.addInitScript(() => {
+    await page.addInitScript((): void => {
       window.localStorage.setItem('accessToken', 'Bearer mock-playwright-token');
       window.localStorage.setItem('refreshToken', 'mock-playwright-refresh-token');
     });
@@ -66,40 +70,16 @@ test.describe('Оформление заказа с HAR-моками', () => {
       });
     });
 
+    constructorPage = new BurgerConstructorPage(page);
+
     await page.goto('/');
     await page.waitForSelector('text=Краторная булка');
   });
 
-  test('должен открыть модальное окно заказа при клике по кнопке Оформить заказ', async ({
-    page,
-  }) => {
-    const bunCard = page
-      .getByTestId('ingredient-card')
-      .filter({ hasText: 'Краторная булка' })
-      .first();
-    const dropTarget = page.getByTestId('constructor-drop-target');
-
-    // Перетаскиваем булку в конструктор
-    await bunCard.hover();
-    await page.mouse.down();
-    const targetBox = await dropTarget.boundingBox();
-    if (targetBox) {
-      await page.mouse.move(
-        targetBox.x + targetBox.width / 2,
-        targetBox.y + targetBox.height / 2,
-        { steps: 5 }
-      );
-    }
-    await page.mouse.up();
-
-    // Нажимаем кнопку оформления заказа
-    const orderButton = page.getByTestId('order-button');
-    await expect(orderButton).toBeEnabled();
-    await orderButton.click();
-
-    // Проверяем появление модального окна с данными о заказе
-    const orderModal = page.locator('[class*="modal__modal"]').first();
-    await expect(orderModal).toBeVisible();
-    await expect(orderModal).toContainText('98765');
+  test('должен открыть модальное окно заказа при клике по кнопке Оформить заказ', async (): Promise<void> => {
+    // Чистый сценарий теста без явного упоминания низкоуровневых селекторов
+    await constructorPage.dragBunToConstructor();
+    await constructorPage.clickOrderButton();
+    await constructorPage.verifyOrderNumber('98765');
   });
 });

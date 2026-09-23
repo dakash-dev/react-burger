@@ -1,14 +1,16 @@
 // Сквозные E2E-тесты для конструктора космических бургеров и модалок
 import { test, expect } from '@playwright/test';
 
-test.describe('Конструктор бургеров E2E флоу', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('Конструктор бургеров E2E флоу', (): void => {
+  test.beforeEach(async ({ page }): Promise<void> => {
     // Перед каждым тестом переходим на главную страницу (baseURL подставляется автоматически)
     await page.goto('/');
     await page.waitForSelector('text=Краторная булка');
   });
 
-  test('должен успешно перетаскивать булку в зону конструктора', async ({ page }) => {
+  test('должен успешно перетаскивать булку в зону конструктора', async ({
+    page,
+  }): Promise<void> => {
     // 1. Arrange: Находим первую карточку булки и зону сброса конструктора
     // Ищем булку по тексту внутри секции ингредиентов
     const bunIngredient = page.locator('text=Краторная булка').first();
@@ -35,7 +37,7 @@ test.describe('Конструктор бургеров E2E флоу', () => {
 
   test('должен открывать модальное окно с деталями при клике на ингредиент', async ({
     page,
-  }) => {
+  }): Promise<void> => {
     // 1. Act: Кликаем по карточке ингредиента
     const ingredient = page.locator('text=Краторная булка').first();
     await ingredient.click();
@@ -53,7 +55,7 @@ test.describe('Конструктор бургеров E2E флоу', () => {
 
   test('должен успешно закрывать модальное окно при клике на крестик', async ({
     page,
-  }) => {
+  }): Promise<void> => {
     // 1. Arrange: Сначала открываем модалку кликом
     const ingredient = page.locator('text=Краторная булка').first();
     await ingredient.click();
