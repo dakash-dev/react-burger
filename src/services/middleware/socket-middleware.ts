@@ -48,70 +48,88 @@ export const createSocketMiddleware = <T>(
         // Переводим сокет в состояние "в процессе подключения"
         dispatch(wsAction.wsConnecting());
 
-        // Создаем браузерное соединение.
-        socket = new WebSocket(url);
+        // Очищаем старый таймер реконнекта, если он был
+        window.clearTimeout(reconnectTimerId);
 
-        socket.onopen = (): void => {
-          dispatch(wsAction.wsOpen());
-        };
+        // Переносим создание сокета в таймаут для нивелирования StrictMode
+        window.setTimeout(() => {
+          if (!isConnected) return; // Если уже успел произойти disconnect, ничего не делаем
 
-        socket.onmessage = (event: MessageEvent<string>): void => {
-          try {
-            // event.data = сырая JSON-строка от бэкенда
-            const { data } = event;
-            const parseData = JSON.parse(data);
-            // Перехват ошибки протухшего токена согласно ТЗ
-            if (
-              withTokenRefresh &&
-              parseData &&
-              typeof parseData === 'object' &&
-              (parseData as Record<string, unknown>).message ===
-                'Invalid or missing token'
-            ) {
-              dispatch(wsAction.wsDisconnect());
-              // процесс обновления токена через API-слой&
-              import('@/utils/burger-api').then(({ refreshTokenRequest }) => {
-                refreshTokenRequest()
-                  .then((refreshedData: TAuthResponse): void => {
-                    const wssUrl = new URL(currentUrl);
-                    wssUrl.searchParams.set(
-                      'token',
-                      refreshedData.accessToken.replace('Bearer ', '')
-                    );
-                    // Токен  обновлсяется и заново переподключение.
-                    // Передаем базовый путь, Middleware само прицепит токен из localStorage
-                    dispatch(wsAction.wsConnect(wssUrl.toString()));
-                  })
-                  .catch((): void => {
-                    // Если даже рефреш-токен сдох, шлем ошибку авторизации в стор
-                    dispatch(wsAction.wsError('Не удалось обновить токен авторизации'));
-                  });
-              });
-              return; // Прерываем дальнейшую обработку сообщения
+          if (socket) {
+            socket.onopen = null;
+            socket.onmessage = null;
+            socket.onerror = null;
+            socket.onclose = null;
+            socket.close();
+          }
+
+          // Создаем браузерное соединение.
+          socket = new WebSocket(url);
+
+          socket.onopen = (): void => {
+            dispatch(wsAction.wsOpen());
+          };
+
+          socket.onmessage = (event: MessageEvent<string>): void => {
+            try {
+              // event.data = сырая JSON-строка от бэкенда
+              const { data } = event;
+              const parseData = JSON.parse(data);
+              // Перехват ошибки протухшего токена согласно ТЗ
+              if (
+                withTokenRefresh &&
+                parseData &&
+                typeof parseData === 'object' &&
+                (parseData as Record<string, unknown>).message ===
+                  'Invalid or missing token'
+              ) {
+                dispatch(wsAction.wsDisconnect());
+                // процесс обновления токена через API-слой&
+                import('@/utils/burger-api').then(({ refreshTokenRequest }) => {
+                  refreshTokenRequest()
+                    .then((refreshedData: TAuthResponse): void => {
+                      const wssUrl = new URL(currentUrl);
+                      wssUrl.searchParams.set(
+                        'token',
+                        refreshedData.accessToken.replace('Bearer ', '')
+                      );
+                      // Токен  обновлсяется и заново переподключение.
+                      // Передаем базовый путь, Middleware само прицепит токен из localStorage
+                      dispatch(wsAction.wsConnect(wssUrl.toString()));
+                    })
+                    .catch((): void => {
+                      // Если даже рефреш-токен сдох, шлем ошибку авторизации в стор
+                      dispatch(
+                        wsAction.wsError('Не удалось обновить токен авторизации')
+                      );
+                    });
+                });
+                return; // Прерываем дальнейшую обработку сообщения
+              }
+              // Отправляем штатные распарсенные данные в наш слайс&
+              dispatch(wsAction.wsMessage(parseData));
+            } catch {
+              //  если ошибка  -  отправка ощибки в редюсер.
+              dispatch(wsAction.wsError('Ошибка парсинга данных сокета'));
             }
-            // Отправляем штатные распарсенные данные в наш слайс&
-            dispatch(wsAction.wsMessage(parseData));
-          } catch {
-            //  если ошибка  -  отправка ощибки в редюсер.
-            dispatch(wsAction.wsError('Ошибка парсинга данных сокета'));
-          }
-        };
+          };
 
-        socket.onerror = (): void => {
-          dispatch(wsAction.wsError('Ошибка соединения WebSocket'));
-        };
+          socket.onerror = (): void => {
+            dispatch(wsAction.wsError('Ошибка соединения WebSocket'));
+          };
 
-        socket.onclose = (): void => {
-          dispatch(wsAction.wsClose());
-          socket = null;
-          //  автопереподключение, если разрыв произошел со стороны сервера
-          if (isConnected) {
-            reconnectTimerId = window.setTimeout((): void => {
-              // Переподключаемся по сохраненному ранее адресу
-              dispatch(wsAction.wsConnect(currentUrl));
-            }, reconnectPeriod);
-          }
-        };
+          socket.onclose = (): void => {
+            dispatch(wsAction.wsClose());
+            socket = null;
+            //  автопереподключение, если разрыв произошел со стороны сервера
+            if (isConnected) {
+              reconnectTimerId = window.setTimeout((): void => {
+                // Переподключаемся по сохраненному ранее адресу
+                dispatch(wsAction.wsConnect(currentUrl));
+              }, reconnectPeriod);
+            }
+          };
+        }, 0);
       }
 
       if (type === wsAction.wsDisconnect.type) {
@@ -122,6 +140,8 @@ export const createSocketMiddleware = <T>(
           // Если сокет еще не успел открыться (CONNECTING), временно глушим дефолтный
           // onclose, чтобы он принудительно не запускал лог ошибки и авто-реконнект
           if (socket.readyState === WebSocket.CONNECTING) {
+            socket.onopen = null;
+            socket.onerror = null;
             socket.onclose = null;
           }
           // Закрываем соединение с кодом 1000 (Normal Closure)

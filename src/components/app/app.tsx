@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, Suspense } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import Modal from '@/components/modal/modal';
@@ -82,38 +82,41 @@ export const App = (): ReactElement => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes location={backgroundLocation || location}>
-        <Route path="/" element={<Home />} />
-        {/* Гостевые зоны: авторизованые уходят на главную или назад */}
-        <Route path="/register" element={<OnlyUnAuth component={<Register />} />} />
-        <Route path="/login" element={<OnlyUnAuth component={<Login />} />} />
-        <Route
-          path="/forgot-password"
-          element={<OnlyUnAuth component={<ForgotPassword />} />}
-        />
-        <Route
-          path="/reset-password"
-          element={<OnlyUnAuth component={<ResetPassword />} />}
-        />
-        {/* Защищенная зона: неавторизованные уходят на /login с сохранением истории */}
-        <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />}>
-          {/* index означает, что по умолчанию на самом /profile откроется форма */}
-          <Route index element={<ProfileForm />} />
-          {/* Заменил текстовую заглушку на полноценный компонент истории заказов пользователя */}
-          <Route path="orders" element={<ProfileOrdersPage />} />
-        </Route>
-        {/* заход по прямой ссылке (без фона) */}
-        <Route path="/ingredients/:id" element={<IngredientPage />} />
-        {/* Общедоступный маршрут для страницы глобальной ленты заказов */}
-        <Route path="/feed" element={<FeedPage />} />
-        {/* Маршрут для открытия деталей заказа на отдельной изолированной странице */}
-        <Route path="/feed/:id" element={<OrderInfo />} />
-        {/* Защищенный маршрут для открытия деталей заказа из истории на отдельной странице */}
-        <Route
-          path="/profile/orders/:id"
-          element={<OnlyAuth component={<OrderInfo />} />}
-        />
-      </Routes>
+      {/* Обернули роуты в Suspense, чтобы React плавно показывал Preloader во время подкачки чанков страниц по сети */}
+      <Suspense fallback={<Preloader />}>
+        <Routes location={backgroundLocation || location}>
+          <Route path="/" element={<Home />} />
+          {/* Гостевые зоны: авторизованые уходят на главную или назад */}
+          <Route path="/register" element={<OnlyUnAuth component={<Register />} />} />
+          <Route path="/login" element={<OnlyUnAuth component={<Login />} />} />
+          <Route
+            path="/forgot-password"
+            element={<OnlyUnAuth component={<ForgotPassword />} />}
+          />
+          <Route
+            path="/reset-password"
+            element={<OnlyUnAuth component={<ResetPassword />} />}
+          />
+          {/* Защищенная зона: неавторизованные уходят на /login с сохранением истории */}
+          <Route path="/profile" element={<OnlyAuth component={<ProfilePage />} />}>
+            {/* index означает, что по умолчанию на самом /profile откроется форма */}
+            <Route index element={<ProfileForm />} />
+            {/* Заменил текстовую заглушку на полноценный компонент истории заказов пользователя */}
+            <Route path="orders" element={<ProfileOrdersPage />} />
+          </Route>
+          {/* заход по прямой ссылке (без фона) */}
+          <Route path="/ingredients/:id" element={<IngredientPage />} />
+          {/* Общедоступный маршрут для страницы глобальной ленты заказов */}
+          <Route path="/feed" element={<FeedPage />} />
+          {/* Маршрут для открытия деталей заказа на отдельной изолированной странице */}
+          <Route path="/feed/:id" element={<OrderInfo />} />
+          {/* Защищенный маршрут для открытия деталей заказа из истории на отдельной странице */}
+          <Route
+            path="/profile/orders/:id"
+            element={<OnlyAuth component={<OrderInfo />} />}
+          />
+        </Routes>
+      </Suspense>
 
       {backgroundLocation && (
         <Routes>

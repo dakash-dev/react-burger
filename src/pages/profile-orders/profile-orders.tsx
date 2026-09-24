@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { OrderCard } from '@/components/order-card/order-card';
 import { selectFeedOrders, wsConnect, wsDisconnect } from '@/services/feed/slice';
 import { useAppDispatch, useAppSelector } from '@/services/hooks';
+import SEO from '@components/seo/seo';
 
 import type { TFeedOrder } from '@/utils/burger-api';
 import type { FC, ReactElement } from 'react';
@@ -29,6 +30,7 @@ export const ProfileOrdersPage: FC = (): ReactElement => {
 
   return (
     <div className={`${styles.container} custom-scroll`}>
+      <SEO title="История заказов" />
       {reversedOrders.length === 0 ? (
         <p className="text text_type_main-medium text_color_inactive mt-10">
           У вас пока нет оформленных заказов

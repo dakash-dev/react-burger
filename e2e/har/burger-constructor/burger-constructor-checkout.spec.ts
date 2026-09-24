@@ -1,0 +1,85 @@
+import { test } from '@playwright/test';
+
+import { BurgerConstructorPage } from './burger-constructor.page';
+
+test.describe('Оформление заказа с HAR-моками', () => {
+  let constructorPage: BurgerConstructorPage;
+
+  test.beforeEach(async ({ page }): Promise<void> => {
+    // 1. Мокирование LocalStorage перед загрузкой страницы по теории
+    await page.addInitScript((): void => {
+      window.localStorage.setItem('accessToken', 'Bearer mock-playwright-token');
+      window.localStorage.setItem('refreshToken', 'mock-playwright-refresh-token');
+    });
+
+    // 2. Включаем режим автоматической записи HAR-файла
+    // true - для первоначального запуска заполнения данных.
+    await page.routeFromHAR('./e2e/har/burger-constructor/api-mocks.har', {
+      url: '**/api/**',
+      update: false, // Режим записи по инструкции
+    });
+
+    // 3. Программный перехват, чтобы обмануть бэкенд во время записи и вернуть 200 OK
+    await page.route('**/api/auth/user', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          user: { email: 'tester@kosmos.ru', name: 'Гагарин' },
+        }),
+      });
+    });
+
+    // мок списка ингредиентов, чтобы булка гарантированно отрендерилась
+    await page.route('**/api/ingredients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: [
+            {
+              _id: '643d69a5c3b7490027fa3aca',
+              name: 'Краторная булка',
+              type: 'bun',
+              proteins: 80,
+              fat: 24,
+              carbohydrates: 53,
+              calories: 420,
+              price: 1255,
+              image: 'https://yandex.net',
+              image_mobile: 'https://yandex.net',
+              image_large: 'https://yandex.net',
+              __v: 0,
+            },
+          ],
+        }),
+      });
+    });
+
+    await page.route('**/api/orders', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          name: 'Космический бургер',
+          order: { number: 98765 },
+        }),
+      });
+    });
+
+    constructorPage = new BurgerConstructorPage(page);
+
+    await page.goto('/');
+    await page.waitForSelector('text=Краторная булка');
+  });
+
+  test('должен открыть модальное окно заказа при клике по кнопке Оформить заказ', async (): Promise<void> => {
+    // Чистый сценарий теста без явного упоминания низкоуровневых селекторов
+    await constructorPage.dragBunToConstructor();
+    await constructorPage.clickOrderButton();
+    await constructorPage.verifyOrderNumber('98765');
+  });
+});

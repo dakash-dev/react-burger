@@ -5,6 +5,7 @@ import {
 } from '@krgaa/react-developer-burger-ui-components';
 import { Link } from 'react-router-dom';
 
+import SEO from '@components/seo/seo';
 import { useFormWithValidation } from '@hooks/use-form-with-validation';
 
 import { loginUser } from '../../services/auth/actions';
@@ -31,6 +32,7 @@ export const Login = (): ReactElement => {
 
   return (
     <div className={styles.wrapper}>
+      <SEO title="Авторизация" />
       <form className={styles.form} noValidate onSubmit={handleSubmit}>
         <h2 className="text text_type_main-medium mb-6">Вход</h2>
         <EmailInput
